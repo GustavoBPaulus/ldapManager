@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html
+	th:replace="~{layout :: layout (~{::title}, ~{::main}, _, ~{::scripts})}">
+<head>
+<title>Lista de Servidores</title>
+</head>
+<body>
+	<main>
+
+		<div class="row">
+			<div class="col-sm-12">
+
+				<div class="card">
+					<!-- /.card-header -->
+					<div class="card-header">
+						<form method="POST" th:object="${pesquisaDto}">
+
+							<div class="row">
+
+								<div class="col-md-6 col-sm-6">
+									<div class="form-group">
+										<label>Pesquisa por cn</label> <input type="text"
+											th:field="*{pesquisa}" class="form-control select2bs4"
+											style="width: 100%;" />
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select
+												th:field="*{status}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="todos" th:value="todos"></option>
+												<option th:text="ativo" th:value="ativo"></option>
+												<option th:text="inativo" th:value="inativo"></option>
+											</select>
+
+									</div>
+									<div class="form-group">
+										<label>Tipo de servidor</label> <select
+												th:field="*{tipoServidor}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="todos" th:value="todos"></option>
+												<option th:text="tae" th:value="tae"></option>
+												<option th:text="docente" th:value="docente"></option>
+												<option th:text="terceirizado" th:value="terceirizado"></option>
+											</select>
+
+									</div>
+									
+									<div class="form-group">
+										<label>Gerar csv?</label> <select
+												th:field="*{gerarCsv}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="NÃO" th:value="false"></option>
+												<option th:text="SIM" th:value="true"></option>
+																							</select>
+
+									</div>
+									
+									
+								</div>
+
+							</div>
+
+							<button type="submit" class="btn btn-primary col-md-6 col-sm-6">Filtrar</button>
+
+						</form>
+					</div>
+
+
+
+
+
+
+					<div class="card-body table-responsive p-0">
+						<table class="table table-hover text-nowrap">
+							<thead>
+								<tr>
+									<th>Cpf</th>
+									<th>Email</th>
+									<th>Nome</th>
+									<th>Cn</th>
+									<th>Ações</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="servidor : ${servidores}">
+									<td th:text="${servidor.login}">183</td>
+									<td th:text="${servidor.email}">Clara Giovana Daniela
+										Duarte</td>
+									<td th:text="${servidor.nome_completo}">Clara Giovana
+										Daniela Duarte</td>
+									<td th:text="${servidor.cn}">clara_giovana@gmail.com</td>
+
+									<td>
+										<div class="btn-group">
+											<a type="button" data-toggle="popover" data-placement="top"
+												data-content="Detalhes" data-trigger="hover"
+												class="btn btn-primary"
+												th:href="@{/servidores/{cpf} (cpf=${servidor.login})}">
+												<i class="fas fa-eye"></i>
+											</a> <a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Editar" data-trigger="hover"
+												class="btn btn-warning"
+												th:href="@{/servidores/{cpf}/editar (cpf=${servidor.login})}">
+												<i class="fas fa-edit"></i>
+											</a>
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Ativar" data-trigger="hover"
+												class="btn btn-primary"
+												th:href="@{/servidores/{cpf}/ativar (cpf=${servidor.login})}"
+												onclick="return confirm('Tem certeza que deseja ativar o servidor?');">
+												<i class="fas fa-thumbs-up"></i>
+											</a> 
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Inativar" data-trigger="hover"
+												class="btn btn-danger"
+												th:href="@{/servidores/{cpf}/inativar (cpf=${servidor.login})}"
+												onclick="return confirm('Tem certeza que deseja inativar o servidor?');">
+												<i class="fas fa-thumbs-down"></i>
+											</a>
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Resetar senha" data-trigger="hover"
+												class="btn btn-warning"
+												th:href="@{/servidores/{cpf}/reset(cpf=${servidor.login})}"
+												onclick="return confirm('Tem certeza que deseja resetar a senha do servidor? A senha ficará: cpf do usuário@ibiruba.ifrs');">
+												<i class="fas fa-lock-open"></i>
+											</a>
+											
+										</div>
+									</td>
+									
+									<td th:text="${servidor.status}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.card-body -->
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<th:block th:fragment="scripts">
+		<script>
+			$(function() {
+				$('[data-toggle="popover"]').popover()
+			})
+		</script>
+	</th:block>
+</body>
+</html>

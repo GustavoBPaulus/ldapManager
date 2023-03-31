@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html
+	th:replace="~{layout :: layout (~{::title}, ~{::main}, ~{::styles}, ~{::scripts})}">
+
+<th:block th:fragment="styles">
+	<link rel="stylesheet"
+		th:href="@{/plugins/select2/css/select2.min.css}">
+	<link rel="stylesheet"
+		th:href="@{/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css}">
+</th:block>
+
+<head>
+<title>[[${servidor.login == null ? 'Novo' : 'Editar'}]]
+	Servidor</title>
+</head>
+
+<body>
+	<main>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form method="POST" th:object="${servidor}">
+			<!--	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
+						<div class="card-body">
+							<fieldset>
+								<legend>Dados Pessoais</legend>
+
+								 <!--<input type="hidden" th:field="*{login}"> -->
+								 
+							 <input type="hidden" th:field="*{senha}">  
+
+								<div class="row">
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="nome_completo">Nome</label> <input type="text"
+												class="form-control" placeholder="Mariane Josefa Gonçalves"
+												th:field="*{nome_completo}" id="nome_txt">
+											<ul>
+												<li class="text-danger"
+													th:each="erro : ${#fields.errors('nome_completo')}"
+													th:text="${erro}"></li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="login">CPF</label> <input type="text"
+												class="form-control" placeholder="401.447.368-61"
+												th:field="*{login}" th:readonly="*{login} != null"
+												id="login_txt">
+											<ul>
+												<li class="text-danger"
+													th:each="erro : ${#fields.errors('login')}"
+													th:text="${erro}"></li>
+											</ul>
+										</div>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="cn">CN</label> <input type="text"
+												class="form-control" placeholder="Mariane Josefa Gonçalves"
+												th:field="*{cn}" th:readonly="*{cn} != null"  id="cn_txt">
+											<ul>
+												<li class="text-danger"
+													th:each="erro : ${#fields.errors('cn')}" th:text="${erro}"></li>
+											</ul>
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="email">E-mail</label> 
+											<input type="email"
+												class="form-control" placeholder="mariane@exemplo.com"
+												th:field="*{email}" id="email_txt">
+											<ul>
+												<li class="text-danger"
+													th:each="erro : ${#fields.errors('email')}"
+													th:text="${erro}"></li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+
+											<label for="sexo">Sexo</label> <select th:field="*{sexo}"
+												class="form-control select2bs4" style="width: 100%;">
+												<option th:text="masculino" th:value="M"></option>
+												<option th:text="feminino" th:value="F"></option>
+											</select>
+
+										</div>
+									</div>
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="tipoServidor">Tipo</label> <select
+												th:field="*{tipoServidor}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="tae" th:value="tae"></option>
+												<option th:text="docente" th:value="docente"></option>
+												<option th:text="terceirizado" th:value="terceirizado"></option>
+											</select>
+
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-md-12 col-sm-12">
+										<div class="form-group">
+											<label for="perfil">Perfil</label> <select
+												th:field="*{perfil}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="USER" th:value="USER"></option>
+												<option th:text="TI" th:value="TI"></option>
+												<option th:text="RH" th:value="RH"></option>
+												<option th:text="CANTINA" th:value="CANTINA"></option>
+											</select>
+										</div>
+									</div>
+
+
+
+								</div>
+
+							</fieldset>
+
+
+						</div>
+						<!-- /.card-body -->
+
+						<div class="card-footer">
+							<button id="btn_salvar" type="submit" class="btn btn-primary">Salvar</button>
+						</div>
+						
+						<div class="form-group centralized">
+						<!-- aqui da para colocar um botão que chama um modal para esqueci minha senha -->
+						<div class="col-sm-10">
+
+							<div id="lbl_warning" name="lbl_warning"
+								class="alert alert-warning" role="alert">Preencha todos os campos!</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<th:block th:fragment="scripts">
+		<script th:src="@{/plugins/select2/js/select2.full.min.js}"></script>
+		<script th:src="@{/plugins/inputmask/jquery.inputmask.min.js}"></script>
+		<script>
+			$('.select2bs4').select2({
+				theme : 'bootstrap4'
+			})
+
+			$('#telefone').inputmask({
+				"mask" : "(99) 99999-9999"
+			})
+			$('#endereco\\.cep').inputmask({
+				"mask" : "99999-999"
+			})
+
+			$("#btn_salvar").click(function() {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+				
+				var nome_txt = $('#nome_txt').val();
+				var cn_txt = $('#cn_txt').val();
+				var email_txt = $('#email_txt').val();
+				if (nome_txt == '' || cn_txt == '' || email_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+					
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+			
+			$("#nome_txt").focus(function() {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+				
+				var nome_txt = $('#nome_txt').val();
+				var cn_txt = $('#cn_txt').val();
+				var email_txt = $('#email_txt').val();
+				if (nome_txt == '' || cn_txt == '' || email_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+					
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+			
+			$("#cn_txt").focus(function() {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+				
+				var nome_txt = $('#nome_txt').val();
+				var cn_txt = $('#cn_txt').val();
+				var email_txt = $('#email_txt').val();
+				if (nome_txt == '' || cn_txt == '' || email_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+					
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+			
+			
+			$("#email_txt").focus(function() {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+				
+				var nome_txt = $('#nome_txt').val();
+				var cn_txt = $('#cn_txt').val();
+				var email_txt = $('#email_txt').val();
+				if (nome_txt == '' || cn_txt == '' || email_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+					
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+			
+			
+			
+		</script>
+	</th:block>
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+2023-01-20 11:19:53,257 INFO org.hibernate.validator.internal.util.Version [background-preinit] HV000001: Hibernate Validator 6.2.0.Final
+2023-01-20 11:19:53,263 INFO org.springframework.boot.StartupInfoLogger [restartedMain] Starting LdapManager using Java 17.0.4.1 on TI58805 with PID 16531 (/home/gustavo/Documentos/workspace-spring-tool-suite-4-4.13.0.RELEASE/ldapmanager/target/classes started by gustavo in /home/gustavo/Documentos/workspace-spring-tool-suite-4-4.13.0.RELEASE/ldapmanager)
+2023-01-20 11:19:53,264 INFO org.springframework.boot.SpringApplication [restartedMain] No active profile set, falling back to 1 default profile: "default"
+2023-01-20 11:19:53,329 INFO org.springframework.boot.logging.DeferredLog [restartedMain] The Class-Path manifest attribute in /home/gustavo/.m2/repository/javax/mail/mail/1.4/mail-1.4.jar referenced one or more files that do not exist: file:/home/gustavo/.m2/repository/javax/mail/mail/1.4/activation.jar
+2023-01-20 11:19:53,330 INFO org.springframework.boot.logging.DeferredLog [restartedMain] Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2023-01-20 11:19:53,330 INFO org.springframework.boot.logging.DeferredLog [restartedMain] For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2023-01-20 11:19:53,891 WARN org.springframework.context.support.AbstractApplicationContext [restartedMain] Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.support.BeanDefinitionOverrideException: Invalid bean definition with name 'servidorValidator' defined in class path resource [br/edu/ifrs/ibiruba/ldapmanager/config/ValidadorConfig.class]: Cannot register bean definition [Root bean: class [null]; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=validadorConfig; factoryMethodName=servidorValidator; initMethodName=null; destroyMethodName=(inferred); defined in class path resource [br/edu/ifrs/ibiruba/ldapmanager/config/ValidadorConfig.class]] for bean 'servidorValidator': There is already [Generic bean: class [br.edu.ifrs.ibiruba.ldapmanager.validators.ServidorValidator]; scope=singleton; abstract=false; lazyInit=null; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null; defined in file [/home/gustavo/Documentos/workspace-spring-tool-suite-4-4.13.0.RELEASE/ldapmanager/target/classes/br/edu/ifrs/ibiruba/ldapmanager/validators/ServidorValidator.class]] bound.
+2023-01-20 11:19:53,903 INFO org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener [restartedMain] 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2023-01-20 11:19:53,932 ERROR org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter [restartedMain] 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+The bean 'servidorValidator', defined in class path resource [br/edu/ifrs/ibiruba/ldapmanager/config/ValidadorConfig.class], could not be registered. A bean with that name has already been defined in file [/home/gustavo/Documentos/workspace-spring-tool-suite-4-4.13.0.RELEASE/ldapmanager/target/classes/br/edu/ifrs/ibiruba/ldapmanager/validators/ServidorValidator.class] and overriding is disabled.
+
+Action:
+
+Consider renaming one of the beans or enabling overriding by setting spring.main.allow-bean-definition-overriding=true
+

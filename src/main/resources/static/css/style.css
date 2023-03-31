@@ -1,0 +1,14 @@
+@charset "ISO-8859-1";
+.centralized{
+	text-align: center;
+}
+
+#errorMessage{
+	color:red;
+}
+
+
+#successMessage{
+	color:blue;
+}
+
