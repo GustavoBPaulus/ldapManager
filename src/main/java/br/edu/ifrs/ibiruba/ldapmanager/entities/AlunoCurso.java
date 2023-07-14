@@ -1,5 +1,7 @@
 package br.edu.ifrs.ibiruba.ldapmanager.entities;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,31 +13,31 @@ public class AlunoCurso {
 	@Id
 	private String matricula;
 	@Column
-	private String nome_curso;
+	private String nomeCurso;
 	@Column
-	private String turma_entrada;
+	private String turmaEntrada;
 	@Column
 	private String curriculo;
 	@Column
-	private String cod_curso;
+	private String codCurso;
 	@Column
-	private String status_discente;
+	private String statusDiscente;
 	
 	@ManyToOne
     @JoinColumn(name = "aluno", nullable = false)
 	private Aluno aluno;
 	
-	public String getNome_curso() {
-		return nome_curso;
+	public String getNomeCurso() {
+		return nomeCurso;
 	}
-	public void setNome_curso(String nome_curso) {
-		this.nome_curso = nome_curso;
+	public void setNomeCurso(String nome_curso) {
+		this.nomeCurso = nome_curso;
 	}
 	public String getTurma_entrada() {
-		return turma_entrada;
+		return turmaEntrada;
 	}
 	public void setTurma_entrada(String turma_entrada) {
-		this.turma_entrada = turma_entrada;
+		this.turmaEntrada = turma_entrada;
 	}
 	public String getMatricula() {
 		return matricula;
@@ -50,22 +52,41 @@ public class AlunoCurso {
 		this.curriculo = curriculo;
 	}
 	public String getCod_curso() {
-		return cod_curso;
+		return codCurso;
 	}
-	public void setCod_curso(String cod_curso) {
-		this.cod_curso = cod_curso;
+
+	public String getStatusDiscente() {
+		return statusDiscente;
 	}
-	public String getStatus_discente() {
-		return status_discente;
+
+	public void setStatusDiscente(String statusDiscente) {
+		this.statusDiscente = statusDiscente;
 	}
-	public void setStatus_discente(String status_discente) {
-		this.status_discente = status_discente;
-	}
+
 	public Aluno getAluno() {
 		return aluno;
 	}
 	public void setAluno(Aluno aluno) {
 		this.aluno = aluno;
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(aluno, codCurso, curriculo, matricula, nomeCurso, statusDiscente, turmaEntrada);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AlunoCurso other = (AlunoCurso) obj;
+		return Objects.equals(aluno, other.aluno) && Objects.equals(codCurso, other.codCurso)
+				&& Objects.equals(curriculo, other.curriculo) && Objects.equals(matricula, other.matricula)
+				&& Objects.equals(nomeCurso, other.nomeCurso)
+				&& Objects.equals(statusDiscente, other.statusDiscente)
+				&& Objects.equals(turmaEntrada, other.turmaEntrada);
 	}
 	
 	

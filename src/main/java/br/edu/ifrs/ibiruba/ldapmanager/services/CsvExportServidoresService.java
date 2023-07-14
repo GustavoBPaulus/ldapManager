@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import br.edu.ifrs.ibiruba.ldapmanager.entities.Servidor;
 
 @Service
-public class CsvExportService {
+public class CsvExportServidoresService {
 	//Logger logger = (Logger) LoggerFactory.getLogger(CsvExportService.class);
 	  
 		@Autowired

@@ -25,10 +25,25 @@ public class MainAdCrud {
 			caminhoCnOuUnidadeOrganizacional = "OU=Integrado,".trim() + "OU=Alunos".trim();
 		else if (tipoUsuario.equalsIgnoreCase("superior"))
 			caminhoCnOuUnidadeOrganizacional = "OU=Superior,".trim() + "OU=Alunos".trim();
-		else if (tipoUsuario.equalsIgnoreCase("tae"))
-			caminhoCnOuUnidadeOrganizacional = "OU=Taes,".trim() + "OU=Servidores".trim();
-		else if (tipoUsuario.equalsIgnoreCase("docente"))
-			caminhoCnOuUnidadeOrganizacional = "OU=Docentes,".trim() + "OU=Servidores".trim();
+		else if (tipoUsuario.equalsIgnoreCase("tae")) {
+			/*
+			 * Quando eram em OUS separadas para taes e docentes
+			 * caminhoCnOuUnidadeOrganizacional = "OU=Taes,".trim() + "OU=Servidores".trim();
+			 */
+			caminhoCnOuUnidadeOrganizacional = "OU=Servidores".trim();
+			
+		}
+		else if (tipoUsuario.equalsIgnoreCase("docente")) {
+			
+			/*
+			 * Quando eram em OUS separadas para taes e docentes
+			 * caminhoCnOuUnidadeOrganizacional = "OU=Docentes,".trim() + "OU=Servidores".trim();
+			 */
+			
+			caminhoCnOuUnidadeOrganizacional = "OU=Servidores".trim();
+			
+			
+		}
 		else if (tipoUsuario.equalsIgnoreCase("terceirizado"))
 			caminhoCnOuUnidadeOrganizacional = "OU=Tercerizados,".trim() + "OU=Servidores".trim();
 		else if (tipoUsuario.equalsIgnoreCase("aluno"))
@@ -374,8 +389,7 @@ public class MainAdCrud {
 						Attribute atr = (Attribute) ae.next();
 						String attributeID = atr.getID();
 						for (Enumeration vals = atr.getAll(); vals.hasMoreElements(); System.out
-								.println(attributeID + ": " + vals.nextElement()))
-							;
+								.println(attributeID + ": " + vals.nextElement()));
 					}
 				}
 			}

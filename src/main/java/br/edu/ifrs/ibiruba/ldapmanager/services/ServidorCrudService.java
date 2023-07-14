@@ -115,7 +115,7 @@ public class ServidorCrudService {
 
 	public Servidor save(@Valid Servidor servidor) {
 		// trata cn
-		trataCn(servidor);
+		trataServidor(servidor);
 		servidorRepository.save(servidor);
 		Optional<ServidorCargo> servidorCargoOptional = servidorCargoRepository.findById(servidor.getLogin());
 
@@ -142,7 +142,7 @@ public class ServidorCrudService {
 			servidorRepository.save(servidor);
 		}
 
-		adicionaStatusDosCargosNaTabelaServidor();
+			adicionaStatusDosCargosNaTabelaServidor();
 
 		try {
 			servidoresFromBaseService.addServidorsFromBase();
@@ -158,10 +158,16 @@ public class ServidorCrudService {
 		return servidor;
 	}
 
-	private void trataCn(Servidor servidor) {
+	private void trataServidor(Servidor servidor) {
 		servidor.setCn(servidor.getCn().toLowerCase());
 		servidor.setCn(servidor.getCn().trim());
 		servidor.setCn(semAcento(servidor.getCn()));
+		
+		servidor.setEmail(semAcento(servidor.getEmail().toLowerCase()));
+		
+		servidor.setNome_completo(semAcento(servidor.getNome_completo()));
+		
+		
 	}
 
 	public void emailDeNovoUsuário(Servidor servidor) {

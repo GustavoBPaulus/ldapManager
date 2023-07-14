@@ -23,8 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrs.ibiruba.ldapmanager.dtos.AlertDTO;
 import br.edu.ifrs.ibiruba.ldapmanager.dtos.PesquisaDto;
 import br.edu.ifrs.ibiruba.ldapmanager.entities.Servidor;
-import br.edu.ifrs.ibiruba.ldapmanager.repositories.MainAdCrud;
-import br.edu.ifrs.ibiruba.ldapmanager.services.CsvExportService;
+import br.edu.ifrs.ibiruba.ldapmanager.services.CsvExportServidoresService;
 import br.edu.ifrs.ibiruba.ldapmanager.services.ServidorCrudService;
 import br.edu.ifrs.ibiruba.ldapmanager.useful.CriptografiaUtil;
 import br.edu.ifrs.ibiruba.ldapmanager.validators.ServidorValidator;
@@ -36,12 +35,9 @@ public class ServidorController {
 	    @Autowired
 	    private ServidorCrudService servidorCrudService;
 
-	    
-	
 	    @Autowired
 	    private ServidorValidator servidorValidador;
-	    
-	    
+	        
 	    List<Servidor> ultimaListaDeServidores = new ArrayList<Servidor>();
 
 	    @InitBinder("servidor")
@@ -55,6 +51,7 @@ public class ServidorController {
 	        ModelAndView modelAndView = new ModelAndView("servidor/home");
 	        modelAndView.addObject("pesquisaDto", new PesquisaDto());
 	        modelAndView.addObject("servidores", ultimaListaDeServidores);
+	        
 	        return modelAndView;
 	    }
 	    
@@ -176,7 +173,7 @@ public class ServidorController {
 	    public void getAllEmployeesInCsv(HttpServletResponse servletResponse) throws IOException {
 	        servletResponse.setContentType("text/csv");
 	        servletResponse.addHeader("Content-Disposition","attachment; filename=\"servidores.csv\"");
-	       new  CsvExportService().writeEmployeesToCsv(servletResponse.getWriter(), ultimaListaDeServidores);
+	       new  CsvExportServidoresService().writeEmployeesToCsv(servletResponse.getWriter(), ultimaListaDeServidores);
 	    }
 	
 }

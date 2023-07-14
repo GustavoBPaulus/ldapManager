@@ -64,12 +64,12 @@ public class AddAlunosFromBase {
 		String tipoDeAluno = "";
 		// List<AlunoCurso> cursosAluno = aluno.getListaCursosAluno();
 		for (AlunoCurso alunoCurso : listaDeAlunosCurso) {
-			if (alunoCurso.getNome_curso().equalsIgnoreCase("ELETROTÉCNICA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("BACHAREL EM CIÊNCIA DA COMPUTAÇÃO")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("LICENCIATURA EM MATEMÁTICA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("MECÂNICA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("AGRONOMIA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("ENGENHARIA MECÂNICA")) {
+			if (alunoCurso.getNomeCurso().equalsIgnoreCase("ELETROTÉCNICA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("BACHAREL EM CIÊNCIA DA COMPUTAÇÃO")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("LICENCIATURA EM MATEMÁTICA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("MECÂNICA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("AGRONOMIA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("ENGENHARIA MECÂNICA")) {
 
 				listaAlunosSuperior.add(alunoCurso);
 
@@ -170,8 +170,8 @@ public class AddAlunosFromBase {
 			boolean isAtivo = false;
 			// verificar se o aluno está desabilitado
 
-			if (alunoCursoFromApi.getStatus_discente().equalsIgnoreCase("ATIVO")
-					|| alunoCursoFromApi.getStatus_discente().equalsIgnoreCase("FORMANDO"))
+			if (alunoCursoFromApi.getStatusDiscente().equalsIgnoreCase("ATIVO")
+					|| alunoCursoFromApi.getStatusDiscente().equalsIgnoreCase("FORMANDO"))
 				isAtivo = true;
 
 			if (!isAtivo) {

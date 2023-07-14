@@ -33,16 +33,16 @@ public class UserUseful {
 			} catch (Exception e) {
 				logger.error("erro para retornar o tipo especificado de usuário: " + e.getStackTrace());
 			}
-			if (alunoCurso.getNome_curso().equalsIgnoreCase("MATEMÁTICA - LICENCIATURA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("BACHAREL EM CIÊNCIA DA COMPUTAÇÃO")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("MECÂNICA")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("ELETROTÉCNICA")) {
+			if (alunoCurso.getNomeCurso().equalsIgnoreCase("MATEMÁTICA - LICENCIATURA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("BACHAREL EM CIÊNCIA DA COMPUTAÇÃO")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("MECÂNICA")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("ELETROTÉCNICA")) {
 				// falta engenharia mecânica e agronomia migrar para o sigaa
 				specifiedTypeOfUser = "superior";
 
-			} else if (alunoCurso.getNome_curso().equalsIgnoreCase("AGROPECUÁRIA - INTEGRADO AO ENSINO MÉDIO")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("INFORMÁTICA - INTEGRADO AO ENSINO MÉDIO")
-					|| alunoCurso.getNome_curso().equalsIgnoreCase("MECÂNICA - INTEGRADO AO ENSINO MÉDIO")) {
+			} else if (alunoCurso.getNomeCurso().equalsIgnoreCase("AGROPECUÁRIA - INTEGRADO AO ENSINO MÉDIO")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("INFORMÁTICA - INTEGRADO AO ENSINO MÉDIO")
+					|| alunoCurso.getNomeCurso().equalsIgnoreCase("MECÂNICA - INTEGRADO AO ENSINO MÉDIO")) {
 
 				specifiedTypeOfUser = "integrado";
 			}

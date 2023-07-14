@@ -35,9 +35,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("**/userpasswordmanager/**").permitAll()
             .antMatchers("/userpasswordmanager/**").permitAll()
             .antMatchers("/servidores").hasAnyAuthority("TI")
-            .antMatchers("/**/cadastrar").hasAuthority("TI")
-            .antMatchers("/**/editar").hasAuthority("TI")
-            .antMatchers("/**/excluir").hasAuthority("TI")
+            .antMatchers("/servidores/cadastrar").hasAuthority("TI")
+            .antMatchers("/servidores/editar").hasAuthority("TI")
+            .antMatchers("/servidores/excluir").hasAuthority("TI")
+            .antMatchers("/alunos").hasAnyAuthority("TI")
+            .antMatchers("/alunos/cadastrar").hasAuthority("TI")
+            .antMatchers("/alunos/editar").hasAuthority("TI")
+            .antMatchers("/alunos/excluir").hasAuthority("TI")
             .anyRequest().authenticated();
 
         http.formLogin()

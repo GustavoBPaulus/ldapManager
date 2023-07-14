@@ -173,7 +173,7 @@ public class AddServidoresFromBase {
 		user.setName(servidor.getCn());
 		System.out.println("Servidor: "+servidor.getCn() + " password: "+ servidor.getSenha());
 		user.setPassword(CriptografiaUtil.desencriptar(servidor.getSenha()));
-		user.setSamaccountname( (vetorNomes[0] + "." + vetorNomes[vetorNomes.length - 1]).toLowerCase() );
+		user.setSamaccountname( servidor.getCn().toLowerCase() );
 		user.setSn(servidor.getCn().toLowerCase());
 
 		return user;
@@ -192,14 +192,14 @@ public class AddServidoresFromBase {
 			mainAd.newConnection();
 			String[] vetorNomes = servidorFromBase.getNome_completo().split(" ");
 
-			User usuarioAd = hashMapServidorsFromAd.get(servidorFromBase.getCn().toLowerCase()  );
+			User usuarioAd = hashMapServidorsFromAd.get(servidorFromBase.getCn().toLowerCase());
 
 			if (!usuarioAd.getGivenName().equalsIgnoreCase(vetorNomes[0]))
 				atualizarAtributo(usuarioAd.getCn(), "givenName", vetorNomes[0], mainAd);
-/*
-			if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(servidorFromBase.getCn())))
-				atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getLogin(), mainAd);
-*/
+
+			//if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(servidorFromBase.getCn())))
+				atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getCn(), mainAd);
+
 			if (!usuarioAd.getMail().equalsIgnoreCase(servidorFromBase.getEmail()))
 				atualizarAtributo(usuarioAd.getCn(), "mail", servidorFromBase.getEmail(), mainAd);
 
