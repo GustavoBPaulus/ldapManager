@@ -136,9 +136,9 @@ public class AddAlunosFromBase {
 		mainAdConnection.closeConnection();
 
 		for (int i = 0; i < listaDeAlunosCurso.size(); i++) {
-			AlunoCurso alunoCursoFromApi = listaDeAlunosCurso.get(i);
+			AlunoCurso alunoCursoFromDataBase = listaDeAlunosCurso.get(i);
 
-			Aluno aluno = alunoRepository.getById(alunoCursoFromApi.getAluno().getLogin());
+			Aluno aluno = alunoRepository.getById(alunoCursoFromDataBase.getAluno().getLogin());
 			MainAdCrud mainAd = new MainAdCrud(tipoDeAluno);
 			mainAd.newConnection();
 			// String[] vetorNomes = alunoFromApi.getNome_completo().split(" ");
@@ -151,13 +151,13 @@ public class AddAlunosFromBase {
 			 * }
 			 */
 
-			User usuarioAd = hashMapAlunosFromAd.get(alunoCursoFromApi.getMatricula());
+			User usuarioAd = hashMapAlunosFromAd.get(alunoCursoFromDataBase.getMatricula());
 
 			if (!usuarioAd.getGivenName().equalsIgnoreCase(aluno.getNome_completo()))
 				atualizarAtributo(usuarioAd.getCn(), "givenName", aluno.getNome_completo(), mainAd);
 
-			if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(alunoCursoFromApi.getMatricula())))
-				atualizarAtributo(usuarioAd.getCn(), "samAccountName", alunoCursoFromApi.getMatricula(), mainAd);
+			if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(alunoCursoFromDataBase.getMatricula())))
+				atualizarAtributo(usuarioAd.getCn(), "samAccountName", alunoCursoFromDataBase.getMatricula(), mainAd);
 
 			if (!usuarioAd.getMail().equalsIgnoreCase(aluno.getEmail()) && aluno.getEmail() != null)
 				atualizarAtributo(usuarioAd.getCn(), "mail", aluno.getEmail(), mainAd);
@@ -170,15 +170,15 @@ public class AddAlunosFromBase {
 			boolean isAtivo = false;
 			// verificar se o aluno está desabilitado
 
-			if (alunoCursoFromApi.getStatusDiscente().equalsIgnoreCase("ATIVO")
-					|| alunoCursoFromApi.getStatusDiscente().equalsIgnoreCase("FORMANDO"))
+			if (alunoCursoFromDataBase.getStatusDiscente().equalsIgnoreCase("ATIVO")
+					|| alunoCursoFromDataBase.getStatusDiscente().equalsIgnoreCase("FORMANDO"))
 				isAtivo = true;
 
 			if (!isAtivo) {
 				int USER_ACCOUNT_DISABLED = 0x00000001;
 				atualizarAtributo(usuarioAd.getCn(), "userAccountControl", Integer.toString(USER_ACCOUNT_DISABLED),
 						mainAd);
-				System.out.println("aluno inativo: " + alunoCursoFromApi.getMatricula());
+				System.out.println("aluno inativo: " + alunoCursoFromDataBase.getMatricula());
 			}
 
 			mainAd.closeConnection();

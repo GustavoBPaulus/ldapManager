@@ -27,13 +27,13 @@ public class AddServidoresFromBase {
 	public boolean addServidorsFromBase() throws InvalidAttributeValueException, NameAlreadyBoundException {
 		boolean success = true;
 		List<Servidor> listaDeServidores = servidorRepository.findAll();
-		
+		/**
 		for(Servidor servidor : listaDeServidores) {
 			if(servidor.getTipoServidor().equalsIgnoreCase("terceirizado"))
 				System.out.println("servidor do tipo terceirizado: " +servidor.getCn());
 		}
-		
-		
+		 **/
+
 		//System.out.println("teste.teste sendo recuperado: "+listaDeServidores.);
 		HashMap<String, List<Servidor>> hashServidores = transformaListaServidoresEmHash(listaDeServidores);
 		//System.out.println("usuário teste.teste existe no hashmap geral: "+ hashServidores.containsKey("teste.teste"));
@@ -45,9 +45,7 @@ public class AddServidoresFromBase {
 		//System.out.println("usuário teste.teste existe na lista de servidores: "+ listaTodosServidoresTaes.contains("teste.teste"));
 		//lista todos os servidores terceirizados
 		List<Servidor> listaTodosServidoresTerceirizados = hashServidores.get("terceirizado");
-		
-		
-		
+
 		// hashMapDeServidors docentes filtrados
 		HashMap<String, List<Servidor>> hashServidoresDocentes = retornaHashDeServidorsFiltrados(
 				listaTodosServidoresDocentes, "docente");

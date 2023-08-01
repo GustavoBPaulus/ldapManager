@@ -137,10 +137,10 @@ public class MainAdCrud {
 		int UF_PASSWD_NOTREQD = 0x0020;
 		int UF_PASSWD_CANT_CHANGE = 0x0040;
 		int UF_NORMAL_ACCOUNT = 0x0200;
-		int UF_DONT_EXPIRE_PASSWD = 0x10000;
+		int UF_DONT_EXPIRE_PASSWD = 0x10200;
 		int UF_PASSWORD_EXPIRED = 0x800000;
 		// UF_PASSWORD_EXPIRED + UF_ACCOUNTDISABLE));
-		attributes.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD));
+		attributes.put("userAccountControl", Integer.toString(UF_NORMAL_ACCOUNT + UF_PASSWD_NOTREQD + UF_DONT_EXPIRE_PASSWD));
 
 		try {
 			answerResult = persisteUser(user, connection, attributes);
@@ -444,7 +444,13 @@ public class MainAdCrud {
 		String userCNComplete = "CN=" + cn + "," + caminhoCnOuUnidadeOrganizacional;
 		
         try {
+			/* opção para apenas ativar
 			modifyAdAttribute(cn, "userAccountControl", "512");
+			 */
+			//Valor ativar o usuário = "512" valor senha nunca expira = "66048" soma dos dois = 66560
+			//opção para ativar e marcar a senha como nunca expira 66560
+
+			modifyAdAttribute(cn, "userAccountControl", "66560");
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
