@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: layout (~{::title}, ~{::main}, _, ~{::scripts})}">
+
+<head>
+  <title>Detalhes do Aluno</title>
+</head>
+
+<body>
+  <main>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="row">
+          <div class="col-md-3">
+
+            <!-- Profile Image -->
+            <div class="card card-primary card-outline">
+              <div class="card-body box-profile">
+                <div class="text-center">
+                  <img class="profile-user-img img-fluid img-circle" id="profile-user-img" alt="User profile picture">
+                </div>
+
+                <h3 class="profile-username text-center" th:text="${aluno.nomeCompleto}">Nina Mcintire</h3>
+
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <!-- About Me Box -->
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">Dados Pessoais</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div sec:authorize="hasAuthority('ADMIN')">
+                  <strong><i class="fas fa-book mr-1"></i> CPF</strong>
+                  <p class="text-muted" th:text="${aluno.login}">
+                    484.325.821-07
+                  </p>
+  
+                  <hr>
+                </div>
+
+                <strong><i class="fas fa-envelope mr-1"></i> E-mail</strong>
+                <p class="text-muted" id="email" th:text="${aluno.email}">nina@mail.com</p>
+
+                <hr>
+
+           
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+          
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+    </div>
+  </main>
+
+  <th:block th:fragment="scripts">
+    <script th:src="@{/js/avatar.min.js}"></script>
+    <script>
+      const email = document.getElementById("email").innerText;
+
+      const avatar = Avatar.from(document.getElementById('profile-user-img'), {
+        'email': email
+      });
+    </script>
+  </th:block>
+</body>
+
+</html>

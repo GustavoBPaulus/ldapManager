@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: IntelliJ IDEA
+Built-By: gustavo.paulus
+Build-Jdk: Amazon Corretto version 11.0.19
+Implementation-Title: LdapManager
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: br.edu.ifrs.ibiruba
+Main-Class: ${start-class}
+

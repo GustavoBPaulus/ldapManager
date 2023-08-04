@@ -189,20 +189,21 @@ public class ServidorCrudService {
 	}
 
 	public void delete(Servidor servidor) {
-		if (servidorCargoRepository.findById(servidor.getCn()).isEmpty()) {
+		//if (servidorCargoRepository.findById(servidor.getCn()).isEmpty()) {
+		//se for excluir o servidor vai excluir os cargos também
+			servidor.getListaCargos().forEach(c ->{
+				servidorCargoRepository.delete(c);
+			});
 			servidorRepository.delete(servidor);
-			try {
-				servidoresFromBaseService.addServidorsFromBase();
-			} catch (InvalidAttributeValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NameAlreadyBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else
+				//varre todos os servidores que tem no ldap e não tem na base
+				servidoresFromBaseService.exluirUsuariosQueExistemNaBaseEnaoExistemNoLdap();
+
+	/*	} else
 			throw new ServidorPossuiCargoException(servidor.getCn());
+	*/
+
 	}
+
 
 	public void inativar(Servidor servidor) {
 		List<ServidorCargo> listaDeservidorCargo = servidorCargoRepository.findByServidor(servidor);

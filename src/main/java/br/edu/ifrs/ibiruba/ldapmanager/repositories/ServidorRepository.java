@@ -62,5 +62,8 @@ public interface ServidorRepository extends JpaRepository<Servidor, String>{
 			+ "where sc.status = :status and s.tipo_servidor = :tipoServidor", nativeQuery = true)
 	List<Servidor> findByStatusAndTipo(String status,  String tipoServidor);
 
-	
+	@Query(value = "select * from servidor where cn = :cn and tipo_servidor = :tipoServidor", nativeQuery = true)
+	List<Servidor> findByCnEqualsAndTipoServidorEquals(String cn, String tipoServidor);
+
+	Optional<Servidor> findByCn(String cn);
 }

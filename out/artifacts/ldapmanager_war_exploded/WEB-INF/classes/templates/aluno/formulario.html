@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: layout (~{::title}, ~{::main}, ~{::styles}, ~{::scripts})}">
+
+<th:block th:fragment="styles">
+	<link rel="stylesheet" th:href="@{/plugins/select2/css/select2.min.css}">
+	<link rel="stylesheet" th:href="@{/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css}">
+</th:block>
+
+<head>
+	<title>[[${alunoDTO.login == null ? 'Novo' : 'Editar'}]]
+		Aluno</title>
+</head>
+
+<body>
+	<main>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form method="POST" th:object="${alunoDTO}">
+						<!--	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
+						<div class="card-body">
+							<fieldset>
+							<legend>Dados Pessoais</legend>
+
+							<!--<input type="hidden" th:field="*{login}"> -->
+
+							<input type="hidden" th:field="*{senha}">
+
+							<div class="row">
+								<div class="col-md-6 col-sm-12">
+									<div class="form-group">
+										<label for="nome_txt">Nome</label> <input type="text"
+																						 class="form-control" placeholder="Mariane Josefa Gonçalves"
+																						 th:field="*{nomeCompleto}" id="nome_txt">
+										<ul>
+											<li class="text-danger"
+												th:each="erro : ${#fields.errors('nomeCompleto')}"
+												th:text="${erro}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-md-6 col-sm-12">
+									<div class="form-group">
+										<label for="login_txt">CPF</label>
+										<input type="text" class="form-control"
+											   placeholder="401.447.368-61" th:field="*{login}"
+											   th:readonly="*{login} != null" id="login_txt" >
+										<ul>
+											<li class="text-danger" th:each="erro : ${#fields.errors('login')}"
+												th:text="${erro}"></li>
+										</ul>
+									</div>
+								</div>
+
+							</div>
+							<div class="row">
+								<div class="col-md-6 col-sm-12">
+									<div class="form-group">
+
+										<label for="sexo_txt">Sexo</label> <select th:field="*{sexo}" id="sexo_txt"
+																			   class="form-control select2bs4" style="width: 100%;">
+										<option th:text="masculino" th:value="M"></option>
+										<option th:text="feminino" th:value="F"></option>
+									</select>
+
+									</div>
+								</div>
+
+
+
+								<div class="col-md-6 col-sm-12">
+									<div class="form-group">
+										<label for="email_txt">E-mail</label>
+										<input type="email" class="form-control" placeholder="mariane@exemplo.com"
+											   th:field="*{email}" id="email_txt">
+										<ul>
+											<li class="text-danger" th:each="erro : ${#fields.errors('email')}"
+												th:text="${erro}"></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+								<!--
+                                                                    <div class="col-md-6 col-sm-12">
+                                                                        <div class="form-group">
+                                                                            <label for="status">status</label>
+                                                                            <select th:field="*{status}" class="form-control select2bs4"
+                                                                                style="width: 100%;">
+                                                                                <option th:text="ATIVO" th:value="ATIVO"></option>
+                                                                                <option th:text="INATIVO" th:value="INATIVO"></option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                    -->
+
+								<div class="row">
+
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="*{nome_curso}">Curso</label>
+
+											<select th:field="*{nome_curso}" class="form-control select2bs4"
+													style="width: 100%;" th:disabled="${alunoDTO.login != null}">
+
+												<option th:each="curso : ${cursos}" th:value="${curso}"
+														th:text="${curso}" />
+											</select>
+
+
+										</div>
+									</div>
+
+									<div class="col-md-6 col-sm-12" >
+										<div class="form-group">
+											<label for="matricula_txt">Matricula</label>
+											<input type="text" class="form-control" placeholder="matricula"
+												   th:field="*{matricula}" th:value = "*{matricula}" id="matricula_txt" th:disabled="${alunoDTO.login != null }">
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+											   data-toggle="popover" data-placement="top"
+											   data-content="Cadastrar novo aluno" data-trigger="hover"
+											   class="btn btn-primary"
+											   th:href="@{/matriculas/cadastrar/{cpf} (cpf=${alunoDTO.login}) }"
+											   onclick="return confirm('Deseja adicionar uma nova matricula para esse aluno?');"
+											   th:disabled="${alunoDTO.login == null}">
+												<i class="fa fa-plus-circle" aria-hidden="true"></i>
+											</a>
+											<ul>
+												<li class="text-danger" th:each="erro : ${#fields.errors('matricula')}"
+													th:text="${erro}"></li>
+											</ul>
+										</div>
+									</div>
+
+
+
+								</div>
+							</fieldset>
+						</div>
+						<!-- /.card-body -->
+
+						<div class="card-footer">
+							<button id="btn_salvar" type="submit" class="btn btn-primary">Salvar</button>
+
+						</div>
+
+						<div class="form-group centralized">
+							<!-- aqui da para colocar um botão que chama um modal para esqueci minha senha -->
+							<div class="col-sm-10">
+
+								<div id="lbl_warning" name="lbl_warning" class="alert alert-warning" role="alert">
+									Preencha todos os campos!</div>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<th:block th:fragment="scripts">
+		<script th:src="@{/plugins/select2/js/select2.full.min.js}"></script>
+		<script th:src="@{/plugins/inputmask/jquery.inputmask.min.js}"></script>
+		<script>
+			$('.select2bs4').select2({
+				theme: 'bootstrap4'
+			})
+
+			$('#telefone').inputmask({
+				"mask": "(99) 99999-9999"
+			})
+			$('#endereco\\.cep').inputmask({
+				"mask": "99999-999"
+			})
+
+			$("#btn_salvar").click(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var nome_txt = $('#nome_txt').val();
+				var login_txt = $('#login_txt').val();
+				var email_txt = $('#email_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (nome_txt == '' || login_txt == '' || email_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+
+			$("#nome_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var nome_txt = $('#nome_txt').val();
+				var cn_txt = $('#login_txt').val();
+				var email_txt = $('#email_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (nome_txt == '' || login_txt == '' || email_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+
+			$("#login_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var nome_txt = $('#nome_txt').val();
+				var login_txt = $('#login_txt').val();
+				var email_txt = $('#email_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (nome_txt == '' || login_txt == '' || email_txt == '' || matricula_txt == ''){
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+
+
+			$("#email_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var nome_txt = $('#nome_txt').val();
+				var login_txt = $('#login_txt').val();
+				var email_txt = $('#email_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (nome_txt == '' || login_txt == '' || email_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+			
+			$("#matricula_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var nome_txt = $('#nome_txt').val();
+				var login_txt = $('#login_txt').val();
+				var email_txt = $('#email_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+					if (nome_txt == '' || login_txt == '' || email_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+			});
+
+
+
+		</script>
+	</th:block>
+</body>
+
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html
+	th:replace="~{layout :: layout (~{::title}, ~{::main}, _, ~{::scripts})}">
+<head>
+<title>Lista de Alunos</title>
+</head>
+<body>
+	<main>
+
+		<div class="row">
+			<div class="col-sm-12">
+
+				<div class="card">
+					<!-- /.card-header -->
+					<div class="card-header">
+						<form method="POST" th:object="${pesquisaAlunoDto}">
+
+							<div class="row">
+
+								<div class="col-md-6 col-sm-6">
+									<div class="form-group">
+										<label>Pesquisa por nome</label> <input type="text"
+											th:field="*{pesquisa}" class="form-control select2bs4"
+											style="width: 100%;" />
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select
+												th:field="*{status}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="todos" th:value="todos"></option>
+												<option th:text="ativo" th:value="ativo"></option>
+												<option th:text="inativo" th:value="inativo"></option>
+											</select>
+
+									</div>
+									<div class="form-group">
+										<label>Tipo de aluno</label> <select
+												th:field="*{tipoAluno}" class="form-control select2bs4"
+												style="width: 100%;">
+											
+										<!--	<option th:each="tipo : ${tiposDeAlunos}" th:value="${tipo}" th:text ="${tipo}" /> --> 
+												<option th:text="todos" th:value="todos"></option>
+												<option th:text="subsequente" th:value="subsequente"></option>
+												<option th:text="superior" th:value="superior"></option>
+												<option th:text="integrado" th:value="integrado"></option>
+												
+																							</select>
+
+									</div>
+									
+									<div class="form-group">
+										<label>Gerar csv?</label> <select
+												th:field="*{gerarCsv}" class="form-control select2bs4"
+												style="width: 100%;">
+												<option th:text="NÃO" th:value="false"></option>
+												<option th:text="SIM" th:value="true"></option>
+																							</select>
+
+									</div>
+									
+									
+								</div>
+
+							</div>
+
+							<button type="submit" class="btn btn-primary col-md-6 col-sm-6">Filtrar</button>
+
+						</form>
+					</div>
+
+
+
+
+
+
+					<div class="card-body table-responsive p-0">
+						<table class="table table-hover text-nowrap">
+							<thead>
+								<tr>
+									<th>Cpf</th>
+									<th>Email</th>
+									<th>Nome</th>
+									<th>Ações</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="aluno : ${alunos}">
+									<td th:text="${aluno.login}">183</td>
+									<td th:text="${aluno.email}">Clara Giovana Daniela
+										Duarte</td>
+									<td th:text="${aluno.nome_completo}">Clara Giovana
+										Daniela Duarte</td>
+								
+
+									<td>
+										<div class="btn-group">
+											<a type="button" data-toggle="popover" data-placement="top"
+												data-content="Detalhes" data-trigger="hover"
+												class="btn btn-primary"
+												th:href="@{/alunos/{cpf} (cpf=${aluno.login})}">
+												<i class="fas fa-eye"></i>
+											</a> <a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Editar" data-trigger="hover"
+												class="btn btn-warning"
+												th:href="@{/alunos/{cpf}/editar (cpf=${aluno.login})}">
+												<i class="fas fa-edit"></i>
+											</a>
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Ativar" data-trigger="hover"
+												class="btn btn-primary"
+												th:href="@{/alunos/{cpf}/ativar (cpf=${aluno.login})}"
+												onclick="return confirm('Tem certeza que deseja ativar o aluno?');">
+												<i class="fas fa-thumbs-up"></i>
+											</a> 
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Inativar" data-trigger="hover"
+												class="btn btn-danger"
+												th:href="@{/alunos/{cpf}/inativar (cpf=${aluno.login})}"
+												onclick="return confirm('Tem certeza que deseja inativar o aluno?');">
+												<i class="fas fa-thumbs-down"></i>
+											</a>
+											<a sec:authorize="hasAuthority('ADMIN')" type="button"
+												data-toggle="popover" data-placement="top"
+												data-content="Resetar senha" data-trigger="hover"
+												class="btn btn-warning"
+												th:href="@{/alunos/{cpf}/reset(cpf=${aluno.login})}"
+												onclick="return confirm('Tem certeza que deseja resetar a senha do aluno? A senha ficará: cpf do usuário@ibiruba.ifrs');">
+												<i class="fas fa-lock-open"></i>
+											</a>
+											
+										</div>
+									</td>
+									
+									<td th:text="${aluno.status}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- /.card-body -->
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<th:block th:fragment="scripts">
+		<script>
+			$(function() {
+				$('[data-toggle="popover"]').popover()
+			})
+		</script>
+	</th:block>
+</body>
+</html>

@@ -3,6 +3,7 @@ package br.edu.ifrs.ibiruba.ldapmanager.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.NamingException;
@@ -28,16 +29,16 @@ public class AddServidoresFromBase {
 		boolean success = true;
 		List<Servidor> listaDeServidores = servidorRepository.findAll();
 		/**
-		for(Servidor servidor : listaDeServidores) {
-			if(servidor.getTipoServidor().equalsIgnoreCase("terceirizado"))
-				System.out.println("servidor do tipo terceirizado: " +servidor.getCn());
-		}
+		 for(Servidor servidor : listaDeServidores) {
+		 if(servidor.getTipoServidor().equalsIgnoreCase("terceirizado"))
+		 System.out.println("servidor do tipo terceirizado: " +servidor.getCn());
+		 }
 		 **/
 
 		//System.out.println("teste.teste sendo recuperado: "+listaDeServidores.);
 		HashMap<String, List<Servidor>> hashServidores = transformaListaServidoresEmHash(listaDeServidores);
 		//System.out.println("usuário teste.teste existe no hashmap geral: "+ hashServidores.containsKey("teste.teste"));
-		
+
 		// lista todos os servidores docentes
 		List<Servidor> listaTodosServidoresDocentes = hashServidores.get("docente");
 		// lista todos os servidores taes
@@ -55,38 +56,37 @@ public class AddServidoresFromBase {
 		//hashMapDeServidoresTerceirizadosFiltrados
 		HashMap<String, List<Servidor>> hashServidoresTerceirizados = retornaHashDeServidorsFiltrados(listaTodosServidoresTerceirizados,
 				"terceirizado");
-		System.out.println("tamanho do hash de terceirizados: " +hashServidoresTerceirizados.size());
-		
-		
+		System.out.println("tamanho do hash de terceirizados: " + hashServidoresTerceirizados.size());
+
+
 		persisteServidoresFromReitoria(hashServidoresDocentes.get("naoCadastrados"), "docente");
 
-		
-		
+
 		persisteServidoresFromReitoria(hashServidoresTaes.get("naoCadastrados"), "tae");
-		
-		
+
+
 		persisteServidoresFromReitoria(hashServidoresTerceirizados.get("naoCadastrados"), "terceirizado");
-		
+
 		try {
-			atualizaServidorsFromReitoria(hashServidoresDocentes.get("jaCadastrados"), "docente");
+			atualizaServidoresLdapFromDatabase(hashServidoresDocentes.get("jaCadastrados"), "docente");
 		} catch (NamingException e) {
 			success = false;
 			e.printStackTrace();
 		}
 		try {
-			atualizaServidorsFromReitoria(hashServidoresTaes.get("jaCadastrados"), "tae");
+			atualizaServidoresLdapFromDatabase(hashServidoresTaes.get("jaCadastrados"), "tae");
 		} catch (NamingException e) {
 			success = false;
 			e.printStackTrace();
 		}
-		
+
 		try {
-			atualizaServidorsFromReitoria(hashServidoresTerceirizados.get("jaCadastrados"), "terceirizado");
+			atualizaServidoresLdapFromDatabase(hashServidoresTerceirizados.get("jaCadastrados"), "terceirizado");
 		} catch (NamingException e) {
 			success = false;
 			e.printStackTrace();
 		}
-		
+
 		return success;
 	}
 
@@ -95,27 +95,27 @@ public class AddServidoresFromBase {
 		List<Servidor> listaServidoresDocentes = new ArrayList<Servidor>();
 		List<Servidor> listaServidoresTaes = new ArrayList<Servidor>();
 		List<Servidor> listaServidoresTerceirizados = new ArrayList<Servidor>();
-		
+
 		for (Servidor servidor : listaDeServidors) {
 			//String tipoDeServidor = "";
 			//List<ServidorCargo> cargosServidor = servidor.getListaCargos();
-			
+
 			if (servidor.getTipoServidor().equalsIgnoreCase("docente"))
 				listaServidoresDocentes.add(servidor);
 			else if (servidor.getTipoServidor().equalsIgnoreCase("tae"))
 				listaServidoresTaes.add(servidor);
-			else if(servidor.getTipoServidor().trim().equalsIgnoreCase("terceirizado"))
+			else if (servidor.getTipoServidor().trim().equalsIgnoreCase("terceirizado"))
 				listaServidoresTerceirizados.add(servidor);
 		}
 		hashServidores.put("docente", listaServidoresDocentes);
 		hashServidores.put("tae", listaServidoresTaes);
 		hashServidores.put("terceirizado", listaServidoresTerceirizados);
-		
+
 		return hashServidores;
 	}
 
 	private HashMap<String, List<Servidor>> retornaHashDeServidorsFiltrados(List<Servidor> listaTodosServidors,
-			String tipoDeServidor) {
+																			String tipoDeServidor) {
 		List<Servidor> listaServidoresJaCadastrados = new ArrayList<Servidor>();
 		List<Servidor> listaServidoresNaoCadastrados = new ArrayList<Servidor>();
 
@@ -123,11 +123,11 @@ public class AddServidoresFromBase {
 		mainAd.newConnection();
 		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMap();
 		for (Servidor servidor : listaTodosServidors) {
-			
-			if (hashMapServidorsFromAd.get( servidor.getCn().toLowerCase() ) != null) {
+
+			if (hashMapServidorsFromAd.get(servidor.getCn().toLowerCase()) != null) {
 				listaServidoresJaCadastrados.add(servidor);
 
-			} else if( hashMapServidorsFromAd.get(servidor.getCn().toLowerCase()) == null) {
+			} else if (hashMapServidorsFromAd.get(servidor.getCn().toLowerCase()) == null) {
 				listaServidoresNaoCadastrados.add(servidor);
 
 			}
@@ -146,7 +146,7 @@ public class AddServidoresFromBase {
 			MainAdCrud mainAd = new MainAdCrud(tipoDeServidor);
 			mainAd.newConnection();
 			//String[] nomeQuebradoNosEspacos = servidor.getNome_completo().split(" ");
-			System.out.println("servidor para ser persistido: "+servidor.getCn());
+			System.out.println("servidor para ser persistido: " + servidor.getCn());
 			System.out.println("Senha do servidor: " + servidor.getSenha());
 
 			User user = convertServidorToUser(servidor);
@@ -164,20 +164,20 @@ public class AddServidoresFromBase {
 		String[] vetorNomes = servidor.getNome_completo().split(" ");
 		User user = new User();
 
-		user.setCn( servidor.getCn().toLowerCase() );
+		user.setCn(servidor.getCn().toLowerCase());
 		user.setGivenName(vetorNomes[0].toLowerCase());
 		if (servidor.getEmail() != null)
 			user.setMail(servidor.getEmail().toLowerCase());
 		user.setName(servidor.getCn());
-		System.out.println("Servidor: "+servidor.getCn() + " password: "+ servidor.getSenha());
+		System.out.println("Servidor: " + servidor.getCn() + " password: " + servidor.getSenha());
 		user.setPassword(CriptografiaUtil.desencriptar(servidor.getSenha()));
-		user.setSamaccountname( servidor.getCn().toLowerCase() );
+		user.setSamaccountname(servidor.getCn().toLowerCase());
 		user.setSn(servidor.getCn().toLowerCase());
 
 		return user;
 	}
 
-	private void atualizaServidorsFromReitoria(List<Servidor> listaDeServidors, String tipoDeServidor)
+	private void atualizaServidoresLdapFromDatabase(List<Servidor> listaDeServidors, String tipoDeServidor)
 			throws NamingException {
 		MainAdCrud mainAdConnection = new MainAdCrud(tipoDeServidor);
 		mainAdConnection.newConnection();
@@ -196,7 +196,7 @@ public class AddServidoresFromBase {
 				atualizarAtributo(usuarioAd.getCn(), "givenName", vetorNomes[0], mainAd);
 
 			//if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(servidorFromBase.getCn())))
-				atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getCn(), mainAd);
+			atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getCn(), mainAd);
 
 			if (!usuarioAd.getMail().equalsIgnoreCase(servidorFromBase.getEmail()))
 				atualizarAtributo(usuarioAd.getCn(), "mail", servidorFromBase.getEmail(), mainAd);
@@ -214,7 +214,7 @@ public class AddServidoresFromBase {
 			}
 
 			if (!isAtivo) {
-				System.out.println("USUÁRIO ESTÁ INATIVO: "+ servidorFromBase.getCn());
+				System.out.println("USUÁRIO ESTÁ INATIVO: " + servidorFromBase.getCn());
 				/*
 				Attribute userAccountControlAttr = searchResult.getAttributes().get("userAccountControl");
 				userAccountControlValue |= 2; // seta o segundo bit (0x00000002) para desativar a conta
@@ -224,8 +224,8 @@ public class AddServidoresFromBase {
 				mainAd.closeConnection();
 			}
 			if (isAtivo) {
-				System.out.println("USUÁRIO ESTÁ ATIVO: "+ servidorFromBase.getCn());
-				
+				System.out.println("USUÁRIO ESTÁ ATIVO: " + servidorFromBase.getCn());
+
 				mainAd.enableAccount(servidorFromBase.getCn());
 				mainAd.closeConnection();
 			}
@@ -237,6 +237,50 @@ public class AddServidoresFromBase {
 		mainAd.modifyAdAttribute(userCN, attribute.toLowerCase(), value);
 
 	}
-	
+
+	public void exluirUsuariosQueExistemNaBaseEnaoExistemNoLdap(){
+
+		List<User> listaDeTaesQueExistemNoLdapEnaoNaBase= retornaListaDeServidoresQueExistemNoAdEnaoExistemNaBase("tae");
+		excluirListaDeUsuariosQueExistemNoLdapEnaoExistemNaBase(listaDeTaesQueExistemNoLdapEnaoNaBase, "tae");
+
+		List<User> listaDeDocentesQueExistemNoLdapEnaoNaBase= retornaListaDeServidoresQueExistemNoAdEnaoExistemNaBase("docente");
+		excluirListaDeUsuariosQueExistemNoLdapEnaoExistemNaBase(listaDeDocentesQueExistemNoLdapEnaoNaBase, "docente");
+
+		//por enquanto estamos excluindo só servidores, se decidir fazer para alunos tem que fazer os métodos de retorno
+		List<User> listaDeTerceirizadosQueNaoExistemNaBaseEexistemNoLdap = retornaListaDeServidoresQueExistemNoAdEnaoExistemNaBase("terceirizado");
+		excluirListaDeUsuariosQueExistemNoLdapEnaoExistemNaBase(listaDeTerceirizadosQueNaoExistemNaBaseEexistemNoLdap, "terceirizado");
+	}
+
+	private static void excluirListaDeUsuariosQueExistemNoLdapEnaoExistemNaBase(List<User> listaDeUsuariosQueNaoExistemNaBaseEexistemNoLdap, String tipoUsuario) {
+		MainAdCrud mainAd = new MainAdCrud(tipoUsuario);
+		mainAd.newConnection();
+		listaDeUsuariosQueNaoExistemNaBaseEexistemNoLdap.forEach(user ->{
+			try {
+				mainAd.deleteUser(user);
+			} catch (NamingException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		mainAd.closeConnection();
+	}
+
+	private List<User> retornaListaDeServidoresQueExistemNoAdEnaoExistemNaBase(String tipoServidor) {
+		List<User> listaDeUsuariosQueNaoExistemNaBaseEexistemNoLdap = new ArrayList<User>();
+
+		MainAdCrud mainAd = new MainAdCrud(tipoServidor);
+		mainAd.newConnection();
+		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMap();
+		hashMapServidorsFromAd.keySet().forEach(
+				cn -> {
+					Optional<Servidor> servidoresRecuperado = servidorRepository.findByCn(cn);
+					if (servidoresRecuperado.isEmpty())
+						listaDeUsuariosQueNaoExistemNaBaseEexistemNoLdap.add(hashMapServidorsFromAd.get(cn));
+				});
+		mainAd.closeConnection();
+		return  listaDeUsuariosQueNaoExistemNaBaseEexistemNoLdap;
+	}
+
+
+
 	
 }

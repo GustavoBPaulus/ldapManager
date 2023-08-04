@@ -44,8 +44,21 @@ public class MainAdCrud {
 			
 			
 		}
-		else if (tipoUsuario.equalsIgnoreCase("terceirizado"))
-			caminhoCnOuUnidadeOrganizacional = "OU=Tercerizados,".trim() + "OU=Servidores".trim();
+
+
+		else if (tipoUsuario.equalsIgnoreCase("terceirizado")) {
+			/*
+			 * Quando eram em OUS separadas para taes e docentes e terceorizados
+			 * caminhoCnOuUnidadeOrganizacional = "OU=Tercerizados,".trim() + "OU=Servidores".trim();
+			 */
+			caminhoCnOuUnidadeOrganizacional = "OU=Servidores".trim();
+
+
+		}
+		//criar um geral caso um dia resolvermos voltar com as subarvores
+		else if (tipoUsuario.equalsIgnoreCase("servidor"))
+			caminhoCnOuUnidadeOrganizacional = "OU=Servidores".trim();
+
 		else if (tipoUsuario.equalsIgnoreCase("aluno"))
 			caminhoCnOuUnidadeOrganizacional = "OU=Alunos".trim();
 		else if (tipoUsuario.equalsIgnoreCase("servidor"))
@@ -260,8 +273,9 @@ public class MainAdCrud {
 
 	public void deleteUser(User user) throws NamingException {
 		DirContext connection = newConnection();
+		String userCNComplete = "CN=" + user.getCn() + "," + caminhoCnOuUnidadeOrganizacional;
 		try {
-			connection.destroySubcontext("cn=" + user.getCn() + ",ou=users");
+			connection.destroySubcontext(userCNComplete);
 			System.out.println("success");
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html th:replace="~{layout :: layout (~{::title}, ~{::main}, ~{::styles}, ~{::scripts})}">
+
+<th:block th:fragment="styles">
+	<link rel="stylesheet" th:href="@{/plugins/select2/css/select2.min.css}">
+	<link rel="stylesheet" th:href="@{/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css}">
+</th:block>
+
+<head>
+<!--	<title>[[${alunoCurso.matricula == null ? 'Nova' : 'Editar'}]] Matricula</title> -->
+
+	<title>Matricula</title>
+</head>
+
+<body>
+	<main>
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="card">
+					<!-- /.card-header -->
+					<!-- form start -->
+					<form method="POST" th:object="${alunoCurso}">
+						<!--	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
+						<div class="card-body">
+							<fieldset>
+								<legend>Dados Pessoais</legend>
+
+								<!--<input type="hidden" th:field="*{login}"> -->
+
+							<!--	<input type="hidden" th:field="*{senha}"> -->
+
+								<div class="col-md-6 col-sm-12">
+									<div class="form-group">
+										<label for="login_txt">CPF</label>
+										<input type="text" class="form-control"
+											   placeholder="401.447.368-61" th:field="*{aluno}"
+											   th:readonly="${alunoCurso.aluno} != null" id="login_txt">
+										<a sec:authorize="hasAuthority('ADMIN')" type="button"
+										   data-toggle="popover" data-placement="top"
+										   data-content="Cadastrar novo aluno" data-trigger="hover"
+										   class="btn btn-primary"
+										   th:href="@{/alunos/cadastrar}"
+										   onclick="return confirm('Deseja cadastrar um novo aluno?');">
+											<i class="fa fa-plus-circle" aria-hidden="true"></i>
+										</a>
+										<ul>
+											<li class="text-danger" th:each="erro : ${#fields.errors('aluno.login')}"
+												th:text="${erro}"></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-md-6 col-sm-12" >
+									<div class="form-group">
+										<label for="matricula_txt">Matricula</label>
+										<input type="text" class="form-control" placeholder="matricula"
+											   th:field="*{matricula}" th:value = "*{matricula}" id="matricula_txt" th:disabled="${alunoCurso.matricula} != null">
+										<ul>
+											<li class="text-danger" th:each="erro : ${#fields.errors('matricula')}"
+												th:text="${erro}"></li>
+										</ul>
+									</div>
+								</div>
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="status_discente">status</label>
+											<select th:field="*{statusDiscente}" class="form-control select2bs4"
+												style="width: 100%;" id="status_discente">
+												<option th:text="ATIVO" th:value="ATIVO"></option>
+												<option th:text="INATIVO" th:value="INATIVO"></option>
+											</select>
+										</div>
+									</div>
+							<!-- descomentar se der problema	</div> -->
+								<div class="row">
+
+									<div class="col-md-6 col-sm-12">
+										<div class="form-group">
+											<label for="nome_curso">Curso</label>
+
+											<select th:field="*{nomeCurso}" class="form-control select2bs4"
+												style="width: 100%;"  id = "nome_curso">
+										<!--
+												<option value="todos"
+														th:text="todos" />
+	-->
+												<option th:each="curso : ${cursos}" th:value="${curso}"
+													th:text="${curso}" />
+											</select>
+
+										</div>
+									</div>
+									
+
+								</div>
+
+							</fieldset>
+
+
+						</div>
+						<!-- /.card-body -->
+
+						<div class="card-footer">
+							<button id="btn_salvar" type="submit" class="btn btn-primary">Salvar</button>
+						</div>
+
+						<div class="form-group centralized">
+							<!-- aqui da para colocar um botão que chama um modal para esqueci minha senha -->
+							<div class="col-sm-10">
+
+								<div id="lbl_warning" name="lbl_warning" class="alert alert-warning" role="alert">
+									Preencha todos os campos!</div>
+								<div id="lbl_lembrete" name="lbl_warning" class="alert alert-warning" role="alert">
+									Lembre-se que é preciso cadastrar um aluno antes de vincular uma matricula</div>
+							</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<th:block th:fragment="scripts">
+		<script th:src="@{/plugins/select2/js/select2.full.min.js}"></script>
+		<script th:src="@{/plugins/inputmask/jquery.inputmask.min.js}"></script>
+		<script>
+			$('.select2bs4').select2({
+				theme: 'bootstrap4'
+			})
+
+			$('#telefone').inputmask({
+				"mask": "(99) 99999-9999"
+			})
+			$('#endereco\\.cep').inputmask({
+				"mask": "99999-999"
+			})
+
+			$("#btn_salvar").click(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var login_txt = $('#login_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (login_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+
+			$("#login_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var login_txt = $('#login_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (login_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+
+			});
+
+
+
+			
+			$("#matricula_txt").blur(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_warning = $('#lbl_warning');
+
+				var login_txt = $('#login_txt').val();
+				var matricula_txt = $('#matricula_txt').val();
+				if (login_txt == '' || matricula_txt == '') {
+					btn_salvar.attr("disabled", true);
+					lbl_warning.removeClass('alert-warning');
+					lbl_warning.addClass('alert-danger');
+
+				} else {
+					btn_salvar.attr("disabled", false);
+					lbl_warning.removeClass('alert-danger');
+					lbl_warning.addClass('alert-success');
+				}
+
+			});
+
+
+
+		</script>
+	</th:block>
+</body>
+
+</html>
