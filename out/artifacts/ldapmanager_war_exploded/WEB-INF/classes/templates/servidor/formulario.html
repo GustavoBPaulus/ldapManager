@@ -49,7 +49,7 @@
 											<label for="login">CPF</label> <input type="text"
 												class="form-control" placeholder="401.447.368-61"
 												th:field="*{login}" th:readonly="*{login} != null"
-												id="login_txt">
+												id="login_txt" onkeyup="somenteNumeros(this);">
 											<ul>
 												<li class="text-danger"
 													th:each="erro : ${#fields.errors('login')}"
@@ -248,8 +248,15 @@
 				}
 
 			});
-			
-			
+
+			function somenteNumeros(num) {
+				var er = /[^0-9.]/;
+				er.lastIndex = 0;
+				var campo = num;
+				if (er.test(campo.value)) {
+					campo.value = "";
+				}
+			}
 			
 		</script>
 	</th:block>

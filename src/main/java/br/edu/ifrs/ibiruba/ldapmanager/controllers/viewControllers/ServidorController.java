@@ -107,6 +107,7 @@ public class ServidorController {
 	        
 	        System.out.println("cpf digitado para o servidor: "+servidor.getLogin());
 	        servidor.setSenha(CriptografiaUtil.encriptar(servidor.getLogin()+"@ibiruba.ifrs"));
+
 	        servidorCrudService.save(servidor);
 	        //attrs.addFlashAttribute("alert", new AlertDTO("Servidor cadastrado com sucesso!", "alert-success"));
 	        attrs.addFlashAttribute("alert", new AlertDTO("Senha temporária é: "+servidor.getLogin()+"@ibiruba.ifrs" , "alert-success"));

@@ -167,7 +167,7 @@ public class ServidorCrudService {
 		
 		servidor.setNome_completo(semAcento(servidor.getNome_completo()));
 		
-		
+		servidor.setLogin(apenasNumeros(servidor.getLogin()));
 	}
 
 	public void emailDeNovoUsuário(Servidor servidor) {
@@ -291,6 +291,17 @@ public class ServidorCrudService {
 		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
 		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 		return pattern.matcher(nfdNormalizedString).replaceAll("");
+	}
+
+	public static String apenasNumeros(String login){
+		char numero[] = login.toCharArray();
+		StringBuilder loginLimpo = new StringBuilder();
+		for(char digito : numero){
+			if(Character.isDigit(digito))
+				loginLimpo.append(digito);
+		}
+
+	return loginLimpo.toString();
 	}
 
 }
