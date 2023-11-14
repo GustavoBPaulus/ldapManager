@@ -2,6 +2,7 @@ package br.edu.ifrs.ibiruba.ldapmanager.services;
 
 import java.util.Random;
 
+import br.edu.ifrs.ibiruba.ldapmanager.useful.PasswordUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,9 @@ public class ResetPasswordService {
 
 	@Autowired
 	ServidorRepository servidorRepository;
-	
+
+	@Autowired
+	ServidorAuthenticatorService servidorAuthenticatorService;
 	Logger logger = LoggerFactory.getLogger(ResetPasswordService.class);
 
 	public boolean forgetPassword(String user, String tipoUsuario) {
@@ -40,17 +43,17 @@ public class ResetPasswordService {
 		AlterPasswordModel alterPassword = new AlterPasswordModel();
 		alterPassword.setUser(user);
 		alterPassword.setTypeOfUser(tipoUsuario);
-		System.out.println("user: " + user + " tipo usuário: " + tipoUsuario);
+		//System.out.println("user: " + user + " tipo usuário: " + tipoUsuario);
 
 		String tipoAlunoOuServidor = new UserUseful().returnSpecifiedTypeOfUser(alterPassword, servidorRepository,
 				alunoCursoRepository);
 
-		System.out.println("tipo de aluno ou servidor: " + tipoAlunoOuServidor);
+		//System.out.println("tipo de aluno ou servidor: " + tipoAlunoOuServidor);
 		// instância um objeto da classe Random usando o construtor padrão
 		Random gerador = new Random();
 
 		// Gera uma senha aleatória
-		String senhaTemporaria = gerador.nextInt(9999) + "@ibiruba.ifrs";
+		String senhaTemporaria = PasswordUtil.retornaSenhaTemporaria();
 
 		//boolean changedAdAdm = false;
 		boolean changedBase = false;
@@ -71,8 +74,8 @@ public class ResetPasswordService {
 		if (sended) {
 
 			//changedAdAdm = new MainAdCrud(tipoAlunoOuServidor).changePassword(user, senhaTemporaria);
-			//System.out.println("senha alterada: " + changedAdAdm);
-			//System.out.println("tipo de usuário: " + tipoUsuario);
+			////System.out.println("senha alterada: " + changedAdAdm);
+			////System.out.println("tipo de usuário: " + tipoUsuario);
 			
 			/*
 			 * Para não ter problemas de um sacanear o outro, o esqueci minha senha não altera a senha ele altera
@@ -81,14 +84,16 @@ public class ResetPasswordService {
 			 */
 
 			if (tipoUsuario.equalsIgnoreCase("servidor")) {
-				System.out.println("entrou no if do servidor");
+				//System.out.println("entrou no if do servidor");
 				Servidor servidor = servidorRepository.findBycn(user).get();
 				servidor.setSenhaTemporaria(CriptografiaUtil.encriptar(senhaTemporaria));
 				servidor.setTemporariaAtiva(true);
 				changedBase = servidorRepository.save(servidor).getLogin() != null;
+				//atualiza o status na tabela de serviço
+				servidorAuthenticatorService.save(servidor);
 
 			} else if (tipoUsuario.equalsIgnoreCase("aluno")) {
-				System.out.println("entrou no if do aluno");
+				//System.out.println("entrou no if do aluno");
 				AlunoCurso alunoCurso = alunoCursoRepository.getById(user);
 				Aluno aluno = alunoRepository.findById(alunoCurso.getAluno().getLogin()).get();
 				aluno.setSenhaTemporaria(CriptografiaUtil.encriptar(senhaTemporaria));
@@ -101,7 +106,7 @@ public class ResetPasswordService {
 	}
 
 	private String getMailFromUser(String user, String tipoUsuario) {
-		System.out.println("tipo Usuario: " + tipoUsuario);
+		//System.out.println("tipo Usuario: " + tipoUsuario);
 
 		if (tipoUsuario.equalsIgnoreCase("servidor") || tipoUsuario.equalsIgnoreCase("tae")
 				|| tipoUsuario.equalsIgnoreCase("docente"))

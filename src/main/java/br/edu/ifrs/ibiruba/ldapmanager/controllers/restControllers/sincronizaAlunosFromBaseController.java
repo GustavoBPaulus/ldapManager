@@ -20,7 +20,7 @@ public class sincronizaAlunosFromBaseController {
 	@GetMapping
 	public ResponseEntity<?> updateStudents() throws NamingException {
 		boolean alunosSincronizados = alunosFromBase.addLdapAlunosFromBase();
-		System.out.println("sincronizado: "+ (alunosSincronizados) );
+		//System.out.println("sincronizado: "+ (alunosSincronizados) );
 		return ResponseEntity.ok(alunosSincronizados);
 	}
 	

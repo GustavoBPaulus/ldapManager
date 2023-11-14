@@ -18,8 +18,8 @@ public class SincronizarServidoresFromBaseController {
 	
 	@GetMapping
 	public ResponseEntity<?> updateStudents() throws NamingException {
-		boolean alunosSincronizados = servidoresFromBase.addServidorsFromBase();
-		System.out.println("sincronizado: "+ (alunosSincronizados) );
+		boolean alunosSincronizados = servidoresFromBase.sincronizarServidoresFromBase();
+		//System.out.println("sincronizado: "+ (alunosSincronizados) );
 		return ResponseEntity.ok(alunosSincronizados);
 	}
 	

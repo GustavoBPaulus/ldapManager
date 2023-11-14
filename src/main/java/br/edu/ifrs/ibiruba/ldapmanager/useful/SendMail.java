@@ -59,7 +59,7 @@ public class SendMail {
 			Transport.send(message);
 
 			success = true;
-			System.out.println("Feito!!!");
+			//System.out.println("Feito!!!");
 
 		} catch (MessagingException e) {
 			logger.error("erro no método sendMail: "+ e.getStackTrace());
@@ -79,7 +79,7 @@ public class SendMail {
 		try {
 			toUser = InternetAddress.parse(message.getDestination());
 		} catch (AddressException e) {
-			System.out.println("erro ao transformar usário");
+			//System.out.println("erro ao transformar usário");
 			logger.error("erro no método sendMailLogic: "+ e.getStackTrace());
 			// TODO Auto-generated catch block
 			e.printStackTrace();

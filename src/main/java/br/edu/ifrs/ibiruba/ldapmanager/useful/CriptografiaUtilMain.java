@@ -45,6 +45,6 @@ public class CriptografiaUtilMain implements PasswordEncoder {
 	
 	public static void main(String []args) {
 		//CriptografiaUtil criptografiaUtil = new CriptografiaUtil();
-		System.out.println(desencriptar("57:6=69=5<=Engnwzgf3nkwx"));
+		//System.out.println(desencriptar("57:6=69=5<=Engnwzgf3nkwx"));
 	}
 }

@@ -25,27 +25,51 @@ public class AddServidoresFromBase {
 	@Autowired
 	ServidorRepository servidorRepository;
 
-	public boolean addServidorsFromBase() throws InvalidAttributeValueException, NameAlreadyBoundException {
-		boolean success = true;
-		List<Servidor> listaDeServidores = servidorRepository.findAll();
-		/**
-		 for(Servidor servidor : listaDeServidores) {
-		 if(servidor.getTipoServidor().equalsIgnoreCase("terceirizado"))
-		 System.out.println("servidor do tipo terceirizado: " +servidor.getCn());
-		 }
-		 **/
 
-		//System.out.println("teste.teste sendo recuperado: "+listaDeServidores.);
-		HashMap<String, List<Servidor>> hashServidores = transformaListaServidoresEmHash(listaDeServidores);
-		//System.out.println("usuário teste.teste existe no hashmap geral: "+ hashServidores.containsKey("teste.teste"));
+	public boolean addOrUpdateServidor(String login) {
+		boolean success = true;
+		//recuperar o servidor por login e persistir ou ajustar de acordo com o que tem na base
+		Optional<Servidor> servidorRecuperadoOptional = servidorRepository.findByLogin(login);
+		MainAdCrud mainAd = null;
+		Servidor servidorRecuperado = null;
+		if (servidorRecuperadoOptional.isPresent()) {
+			servidorRecuperado = servidorRecuperadoOptional.get();
+			mainAd = new MainAdCrud(servidorRecuperado.getTipoServidor());
+			mainAd.newConnection();
+			User user = mainAd.returnUser(servidorRecuperado.getCn());
+			//servidor já existe no ad então só atualiza
+			if (user != null && (servidorRecuperado.getCn().equalsIgnoreCase(user.getCn()))) {
+				try {
+					atualizaServidorNoLdap(mainAd, servidorRecuperado,  user);
+				} catch (NamingException e) {
+					//fazer aqui um tratamento de erro diferenciado
+					throw new RuntimeException(e);
+				}
+			}
+			//servidor não existe no ad
+			else {
+				persisteServidorNoLdap(servidorRecuperado);
+			}
+
+		}
+
+
+		if (mainAd != null)
+			mainAd.closeConnection();
+
+		return success;
+	}
+
+	public boolean sincronizarServidoresFromBase() throws InvalidAttributeValueException, NameAlreadyBoundException {
+		boolean success = true;
 
 		// lista todos os servidores docentes
-		List<Servidor> listaTodosServidoresDocentes = hashServidores.get("docente");
+		List<Servidor> listaTodosServidoresDocentes = servidorRepository.findByTipoServidor("docente");
 		// lista todos os servidores taes
-		List<Servidor> listaTodosServidoresTaes = hashServidores.get("tae");
-		//System.out.println("usuário teste.teste existe na lista de servidores: "+ listaTodosServidoresTaes.contains("teste.teste"));
+		List<Servidor> listaTodosServidoresTaes = servidorRepository.findByTipoServidor("tae");
+		////System.out.println("usuário teste.teste existe na lista de servidores: "+ listaTodosServidoresTaes.contains("teste.teste"));
 		//lista todos os servidores terceirizados
-		List<Servidor> listaTodosServidoresTerceirizados = hashServidores.get("terceirizado");
+		List<Servidor> listaTodosServidoresTerceirizados = servidorRepository.findByTipoServidor("terceirizado");
 
 		// hashMapDeServidors docentes filtrados
 		HashMap<String, List<Servidor>> hashServidoresDocentes = retornaHashDeServidorsFiltrados(
@@ -56,16 +80,16 @@ public class AddServidoresFromBase {
 		//hashMapDeServidoresTerceirizadosFiltrados
 		HashMap<String, List<Servidor>> hashServidoresTerceirizados = retornaHashDeServidorsFiltrados(listaTodosServidoresTerceirizados,
 				"terceirizado");
-		System.out.println("tamanho do hash de terceirizados: " + hashServidoresTerceirizados.size());
+		//System.out.println("tamanho do hash de terceirizados: " + hashServidoresTerceirizados.size());
 
 
-		persisteServidoresFromReitoria(hashServidoresDocentes.get("naoCadastrados"), "docente");
+		persisteServidoresFromBase(hashServidoresDocentes.get("naoCadastrados"), "docente");
 
 
-		persisteServidoresFromReitoria(hashServidoresTaes.get("naoCadastrados"), "tae");
+		persisteServidoresFromBase(hashServidoresTaes.get("naoCadastrados"), "tae");
 
 
-		persisteServidoresFromReitoria(hashServidoresTerceirizados.get("naoCadastrados"), "terceirizado");
+		persisteServidoresFromBase(hashServidoresTerceirizados.get("naoCadastrados"), "terceirizado");
 
 		try {
 			atualizaServidoresLdapFromDatabase(hashServidoresDocentes.get("jaCadastrados"), "docente");
@@ -90,29 +114,6 @@ public class AddServidoresFromBase {
 		return success;
 	}
 
-	private HashMap<String, List<Servidor>> transformaListaServidoresEmHash(List<Servidor> listaDeServidors) {
-		HashMap<String, List<Servidor>> hashServidores = new HashMap<String, List<Servidor>>();
-		List<Servidor> listaServidoresDocentes = new ArrayList<Servidor>();
-		List<Servidor> listaServidoresTaes = new ArrayList<Servidor>();
-		List<Servidor> listaServidoresTerceirizados = new ArrayList<Servidor>();
-
-		for (Servidor servidor : listaDeServidors) {
-			//String tipoDeServidor = "";
-			//List<ServidorCargo> cargosServidor = servidor.getListaCargos();
-
-			if (servidor.getTipoServidor().equalsIgnoreCase("docente"))
-				listaServidoresDocentes.add(servidor);
-			else if (servidor.getTipoServidor().equalsIgnoreCase("tae"))
-				listaServidoresTaes.add(servidor);
-			else if (servidor.getTipoServidor().trim().equalsIgnoreCase("terceirizado"))
-				listaServidoresTerceirizados.add(servidor);
-		}
-		hashServidores.put("docente", listaServidoresDocentes);
-		hashServidores.put("tae", listaServidoresTaes);
-		hashServidores.put("terceirizado", listaServidoresTerceirizados);
-
-		return hashServidores;
-	}
 
 	private HashMap<String, List<Servidor>> retornaHashDeServidorsFiltrados(List<Servidor> listaTodosServidors,
 																			String tipoDeServidor) {
@@ -121,7 +122,7 @@ public class AddServidoresFromBase {
 
 		MainAdCrud mainAd = new MainAdCrud(tipoDeServidor);
 		mainAd.newConnection();
-		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMap();
+		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMapUser();
 		for (Servidor servidor : listaTodosServidors) {
 
 			if (hashMapServidorsFromAd.get(servidor.getCn().toLowerCase()) != null) {
@@ -136,29 +137,39 @@ public class AddServidoresFromBase {
 		HashMap<String, List<Servidor>> hashServidors = new HashMap<String, List<Servidor>>();
 		hashServidors.put("jaCadastrados", listaServidoresJaCadastrados);
 		hashServidors.put("naoCadastrados", listaServidoresNaoCadastrados);
+
+		mainAd.closeConnection();
 		return hashServidors;
 	}
 
-	private void persisteServidoresFromReitoria(List<Servidor> listaDeServidors, String tipoDeServidor)
+	private void persisteServidoresFromBase(List<Servidor> listaDeServidors, String tipoDeServidor)
 			throws javax.naming.directory.InvalidAttributeValueException, javax.naming.NameAlreadyBoundException {
 
 		for (Servidor servidor : listaDeServidors) {
-			MainAdCrud mainAd = new MainAdCrud(tipoDeServidor);
-			mainAd.newConnection();
-			//String[] nomeQuebradoNosEspacos = servidor.getNome_completo().split(" ");
-			System.out.println("servidor para ser persistido: " + servidor.getCn());
-			System.out.println("Senha do servidor: " + servidor.getSenha());
+			persisteServidorNoLdap(servidor);
+		}
+	}
 
-			User user = convertServidorToUser(servidor);
-			try {
-				mainAd.addUser(user);
-			} finally {
-				mainAd.closeConnection();
-			}
+	private User persisteServidorNoLdap(Servidor servidor) {
+		MainAdCrud mainAd = new MainAdCrud(servidor.getTipoServidor());
+		mainAd.newConnection();
+		//String[] nomeQuebradoNosEspacos = servidor.getNome_completo().split(" ");
+		//System.out.println("servidor para ser persistido: " + servidor.getCn());
+		//System.out.println("Senha do servidor: " + servidor.getSenha());
 
+		User user = convertServidorToUser(servidor);
+		try {
+			mainAd.addUser(user);
+		} finally {
+			mainAd.closeConnection();
 		}
 
-	}
+	return  user;
+
+}
+
+
+
 
 	private User convertServidorToUser(Servidor servidor) {
 		String[] vetorNomes = servidor.getNome_completo().split(" ");
@@ -169,7 +180,7 @@ public class AddServidoresFromBase {
 		if (servidor.getEmail() != null)
 			user.setMail(servidor.getEmail().toLowerCase());
 		user.setName(servidor.getCn());
-		System.out.println("Servidor: " + servidor.getCn() + " password: " + servidor.getSenha());
+		//System.out.println("Servidor: " + servidor.getCn() + " password: " + servidor.getSenha());
 		user.setPassword(CriptografiaUtil.desencriptar(servidor.getSenha()));
 		user.setSamaccountname(servidor.getCn().toLowerCase());
 		user.setSn(servidor.getCn().toLowerCase());
@@ -181,54 +192,50 @@ public class AddServidoresFromBase {
 			throws NamingException {
 		MainAdCrud mainAdConnection = new MainAdCrud(tipoDeServidor);
 		mainAdConnection.newConnection();
-		HashMap<String, User> hashMapServidorsFromAd = mainAdConnection.returnUserHashMap();
-		mainAdConnection.closeConnection();
-
+		HashMap<String, User> hashMapServidorsFromAd = mainAdConnection.returnUserHashMapUser();
 		for (int i = 0; i < listaDeServidors.size(); i++) {
 			Servidor servidorFromBase = listaDeServidors.get(i);
-			MainAdCrud mainAd = new MainAdCrud(tipoDeServidor);
-			mainAd.newConnection();
-			String[] vetorNomes = servidorFromBase.getNome_completo().split(" ");
-
 			User usuarioAd = hashMapServidorsFromAd.get(servidorFromBase.getCn().toLowerCase());
+			atualizaServidorNoLdap(mainAdConnection,servidorFromBase,   usuarioAd);
+		}
+		mainAdConnection.closeConnection();
+	}
 
-			if (!usuarioAd.getGivenName().equalsIgnoreCase(vetorNomes[0]))
-				atualizarAtributo(usuarioAd.getCn(), "givenName", vetorNomes[0], mainAd);
+	private void atualizaServidorNoLdap(MainAdCrud mainAd, Servidor servidorFromBase,  User usuarioAd) throws NamingException {
 
-			//if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(servidorFromBase.getCn())))
-			atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getCn(), mainAd);
+		String[] vetorNomes = servidorFromBase.getNome_completo().split(" ");
+		if (!usuarioAd.getGivenName().equalsIgnoreCase(vetorNomes[0]))
+			atualizarAtributo(usuarioAd.getCn(), "givenName", vetorNomes[0], mainAd);
 
-			if (!usuarioAd.getMail().equalsIgnoreCase(servidorFromBase.getEmail()))
-				atualizarAtributo(usuarioAd.getCn(), "mail", servidorFromBase.getEmail(), mainAd);
+		//if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(servidorFromBase.getCn())))
+		atualizarAtributo(usuarioAd.getCn(), "samAccountName", servidorFromBase.getCn(), mainAd);
 
-			if (!usuarioAd.getSn().equalsIgnoreCase(vetorNomes[vetorNomes.length - 1])) {
-				atualizarAtributo(usuarioAd.getCn(), "sn", servidorFromBase.getNome_completo()
-						.split(" ")[servidorFromBase.getNome_completo().split(" ").length - 1], mainAd);
-			}
-			boolean isAtivo = false;
-			// verificar se o servidor está desabilitado
+		if (!usuarioAd.getMail().equalsIgnoreCase(servidorFromBase.getEmail()))
+			atualizarAtributo(usuarioAd.getCn(), "mail", servidorFromBase.getEmail(), mainAd);
 
-			for (ServidorCargo servidorCargoModelo : servidorFromBase.getListaCargos()) {
-				if (servidorCargoModelo.getStatus().equalsIgnoreCase("ATIVO"))
-					isAtivo = true;
-			}
+		if (!usuarioAd.getSn().equalsIgnoreCase(vetorNomes[vetorNomes.length - 1])) {
+			atualizarAtributo(usuarioAd.getCn(), "sn", servidorFromBase.getNome_completo()
+					.split(" ")[servidorFromBase.getNome_completo().split(" ").length - 1], mainAd);
+		}
+		boolean isAtivo = false;
+		// verificar se o servidor está desabilitado
 
-			if (!isAtivo) {
-				System.out.println("USUÁRIO ESTÁ INATIVO: " + servidorFromBase.getCn());
-				/*
-				Attribute userAccountControlAttr = searchResult.getAttributes().get("userAccountControl");
-				userAccountControlValue |= 2; // seta o segundo bit (0x00000002) para desativar a conta
-				atualizarAtributo(usuarioAd.getCn(), "userAccountControl", Integer.toString(USER_ACCOUNT_DISABLED),mainAd);
-*/
-				mainAd.disableAccount(servidorFromBase.getCn());
-				mainAd.closeConnection();
-			}
-			if (isAtivo) {
-				System.out.println("USUÁRIO ESTÁ ATIVO: " + servidorFromBase.getCn());
+		for (ServidorCargo servidorCargoModelo : servidorFromBase.getListaCargos()) {
+			if (servidorCargoModelo.getStatus().equalsIgnoreCase("ATIVO"))
+				isAtivo = true;
+		}
 
-				mainAd.enableAccount(servidorFromBase.getCn());
-				mainAd.closeConnection();
-			}
+		if (!isAtivo) {
+			//System.out.println("USUÁRIO ESTÁ INATIVO: " + servidorFromBase.getCn());
+
+			mainAd.disableAccount(servidorFromBase.getCn());
+
+		}
+		if (isAtivo) {
+			//System.out.println("USUÁRIO ESTÁ ATIVO: " + servidorFromBase.getCn());
+
+			mainAd.enableAccount(servidorFromBase.getCn());
+
 		}
 	}
 
@@ -269,7 +276,7 @@ public class AddServidoresFromBase {
 
 		MainAdCrud mainAd = new MainAdCrud(tipoServidor);
 		mainAd.newConnection();
-		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMap();
+		HashMap<String, User> hashMapServidorsFromAd = mainAd.returnUserHashMapUser();
 		hashMapServidorsFromAd.keySet().forEach(
 				cn -> {
 					Optional<Servidor> servidoresRecuperado = servidorRepository.findByCn(cn);

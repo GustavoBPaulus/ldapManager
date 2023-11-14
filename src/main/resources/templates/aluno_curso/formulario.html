@@ -109,6 +109,9 @@
 
 								<div id="lbl_warning" name="lbl_warning" class="alert alert-warning" role="alert">
 									Preencha todos os campos!</div>
+								<div id="lbl_cadastrando" name="lbl_cadastrando" class="alert alert-warning" role="alert"
+									 style = "display:none">
+									Cadastrando e enviando email para o usuário...</div>
 								<div id="lbl_lembrete" name="lbl_warning" class="alert alert-warning" role="alert">
 									Lembre-se que é preciso cadastrar um aluno antes de vincular uma matricula</div>
 							</div>
@@ -194,7 +197,16 @@
 
 			});
 
+			$("#btn_salvar").click(function () {
+				var btn_salvar = $('#btn_salvar');
+				var lbl_cadastrando = $('#lbl_cadastrando');
+				btn_salvar.attr("disabled", false);
+				lbl_cadastrando.style.display = "block";
+				lbl_cadastrando.removeClass('alert-danger');
+				lbl_cadastrando.addClass('alert-success');
+				//lbl_cadastrando.appendChild(" Cadastrando/editando ...");
 
+			});
 
 		</script>
 	</th:block>

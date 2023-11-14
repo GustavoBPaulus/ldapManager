@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
 import br.edu.ifrs.ibiruba.ldapmanager.entities.AlunoCurso;
 import br.edu.ifrs.ibiruba.ldapmanager.services.AlunoCursoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,10 +110,11 @@ public class AlunoController {
 
 		if (resultado.hasErrors()) {
 			attrs.addFlashAttribute("alert", new AlertDTO(resultado.getFieldError().toString(), "alert-warning"));
+			attrs.addFlashAttribute("cursos", alunoCursoService.retornaCursos());
 			return "aluno/formulario";
 		}
 
-		System.out.println("cpf digitado para o Aluno: " + alunoDto.getLogin());
+		//System.out.println("cpf digitado para o Aluno: " + alunoDto.getLogin());
 		alunoDto.setSenha(CriptografiaUtil.encriptar(alunoDto.getLogin() + "@ibiruba.ifrs"));
 		alunoCrudService.insert(alunoDto);
 		// attrs.addFlashAttribute("alert", new AlertDTO("Aluno cadastrado com
@@ -131,6 +131,7 @@ public class AlunoController {
 
 		if (resultado.hasErrors()) {
 			attrs.addFlashAttribute("alert", new AlertDTO(resultado.getFieldError().toString(), "alert-warning"));
+			attrs.addFlashAttribute("cursos", alunoCursoService.retornaCursos());
 			return "redirect:/alunos/{cpf}/editar";
 		}
 

@@ -57,57 +57,55 @@ public class AlunoCrudService {
 	}
 
 	public List<Aluno> findByNomeStatusAndTipoAluno(String nome, String status, String tipoDeAluno) {
-		System.out.println("cn: " + nome + " status: " + status);
+		//System.out.println("cn: " + nome + " status: " + status);
 		status = status.toUpperCase();
 		// todos
 		if (nome.equals("") && status.equalsIgnoreCase("todos") && tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
+			//System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
 
 			return findAll();
 
 		}
 		// apenas por nome
 		else if (!nome.equals("") && status.equalsIgnoreCase("todos") && tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo cn ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo cn ,cn: " + nome + " status: " + status);
 
 			return alunoRepository.findByNomeCompletoContaining(nome.trim().toUpperCase());
 
 		} // apenas o status
 		else if (nome.equals("") && !status.equalsIgnoreCase("todos") && tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo status ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo status ,cn: " + nome + " status: " + status);
 			return alunoRepository.findByStatus(status);
 
 		}
 		// apenas pelo tipo de Aluno
 		else if (nome.equals("") && status.equalsIgnoreCase("todos") && !tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo tipo ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo tipo ,cn: " + nome + " status: " + status);
 			return alunoRepository.findByTipoAluno(tipoDeAluno.toLowerCase().trim());
 
 		}
 
 		// apenas nomeCompleto e status
 		else if (!nome.equals("") && !status.equalsIgnoreCase("todos") && tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo cn e status ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo cn e status ,cn: " + nome + " status: " + status);
 			return alunoRepository.findByNomeCompletoContainingAndStatusEquals(nome.trim().toLowerCase(),status.toUpperCase().trim());
 
 		}
 		// apenas nomeCompleto e tipo
 		else if (!nome.equals("") && status.equalsIgnoreCase("todos") && !tipoDeAluno.equalsIgnoreCase("todos")) {
 
-			System.out.println("if do cn e tipo, cn = " + nome + "status = " + status + "tipoDeAluno = " + tipoDeAluno);
+			//System.out.println("if do cn e tipo, cn = " + nome + "status = " + status + "tipoDeAluno = " + tipoDeAluno);
 			return alunoRepository.findByNomeCompletoContainingAndTipoAlunoEquals(nome, tipoDeAluno);
 
 		}
 		// apenas tipo e status
 		else if (nome.equals("") && !status.equalsIgnoreCase("todos") && !tipoDeAluno.equalsIgnoreCase("todos")) {
-			System.out
-					.println("if tipo e status, cn = " + nome + "status = " + status + "tipoDeAluno = " + tipoDeAluno);
+			//System.out.println("if tipo e status, cn = " + nome + "status = " + status + "tipoDeAluno = " + tipoDeAluno);
 			return alunoRepository.findByStatusEqualsAndTipoAlunoEquals(status.toUpperCase(), tipoDeAluno);
 		}
 		// tipo, status e cn
 		else {
-			System.out.println("if cn, tipo e status preenchidos, cn = " + nome + "status = " + status
-					+ "tipoDeAluno = " + tipoDeAluno);
+			//System.out.println("if cn, tipo e status preenchidos, cn = " + nome + "status = " + status+ "tipoDeAluno = " + tipoDeAluno);
 			return alunoRepository.findByNomeCompletoContainingAndStatusEqualsAndTipoAlunoEquals(nome, status,
 					tipoDeAluno);
 		}
@@ -151,9 +149,9 @@ public class AlunoCrudService {
 */
 		adicionaStatusDosCursosNaTabelaAluno();
 
-		adicionaAlunosDaBaseParaOldap();
-
-		emailDeNovoUsuário(aluno);
+		//adicionaAlunosDaBaseParaOldap();
+		alunosFromBaseService.addOrUpdateAluno(alunoDTO.getMatricula());
+		emailDeNovoUsuario(aluno);
 		return aluno;
 	}
 
@@ -175,7 +173,7 @@ public class AlunoCrudService {
 
 		adicionaStatusDosCursosNaTabelaAluno();
 
-		adicionaAlunosDaBaseParaOldap();
+		alunosFromBaseService.addOrUpdateAluno(alunoDTO.getMatricula());
 
 		
 		return alunoRecuperado;
@@ -198,10 +196,10 @@ public class AlunoCrudService {
 
 	private AlunoCurso transformaAlunoDtoEmAlunoCurso(AlunoDTO alunoDTO, Aluno aluno, AlunoCurso alunoCurso) {
 		alunoCurso.setMatricula(alunoDTO.getMatricula());
-		System.out.println("matricula salva: "+alunoCurso.getMatricula());
+		//System.out.println("matricula salva: "+alunoCurso.getMatricula());
 		alunoCurso.setNomeCurso(alunoDTO.getNome_curso());
 		alunoCurso.setStatusDiscente(alunoDTO.getStatus());
-		System.out.println("status discente: "+alunoCurso.getStatusDiscente());
+		//System.out.println("status discente: "+alunoCurso.getStatusDiscente());
 		alunoCurso.setAluno(aluno);
 		return alunoCurso;
 	}
@@ -253,7 +251,7 @@ public class AlunoCrudService {
 	}
 */	
 
-	public void emailDeNovoUsuário(Aluno aluno) {
+	public void emailDeNovoUsuario(Aluno aluno) {
 		List<AlunoCurso> listaDeCursosDoAluno = aluno.getListaCursosAluno();
 		Iterator<AlunoCurso> listaDeCursoIterator = listaDeCursosDoAluno.iterator();
 		while (listaDeCursoIterator.hasNext()) {

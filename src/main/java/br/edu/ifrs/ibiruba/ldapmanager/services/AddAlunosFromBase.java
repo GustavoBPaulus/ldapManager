@@ -3,16 +3,15 @@ package br.edu.ifrs.ibiruba.ldapmanager.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 
 import javax.naming.NamingException;
 
+import br.edu.ifrs.ibiruba.ldapmanager.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.edu.ifrs.ibiruba.ldapmanager.entities.Aluno;
-import br.edu.ifrs.ibiruba.ldapmanager.entities.AlunoCurso;
-import br.edu.ifrs.ibiruba.ldapmanager.entities.User;
 import br.edu.ifrs.ibiruba.ldapmanager.repositories.AlunoCursoRepository;
 import br.edu.ifrs.ibiruba.ldapmanager.repositories.AlunoRepository;
 import br.edu.ifrs.ibiruba.ldapmanager.repositories.MainAdCrud;
@@ -26,22 +25,54 @@ public class AddAlunosFromBase {
 
 	@Autowired
 	AlunoCursoRepository alunoCursoRepository;
+	public boolean addOrUpdateAluno(String matricula) {
+		boolean success = true;
+		//recuperar o servidor por login e persistir ou ajustar de acordo com o que tem na base
+		Optional<AlunoCurso> alunoCursoRecuperadoOptional = alunoCursoRepository.findByMatricula(matricula);
+		MainAdCrud mainAd = null;
+		AlunoCurso alunoCursoRecuperado = null;
+		if (alunoCursoRecuperadoOptional.isPresent()) {
+			alunoCursoRecuperado = alunoCursoRecuperadoOptional.get();
+			mainAd = new MainAdCrud(alunoCursoRecuperado.getMatricula());
+			mainAd.newConnection();
+			User user = mainAd.returnUser(alunoCursoRecuperado.getMatricula());
+			//servidor já existe no ad então só atualiza
+			if (user != null && (alunoCursoRecuperado.getMatricula().equalsIgnoreCase(user.getCn()))) {
+				try {
+					atualizaAlunoNoLdap(mainAd, alunoCursoRecuperado,  user);
+				} catch (NamingException e) {
+					//fazer aqui um tratamento de erro diferenciado
+					throw new RuntimeException(e);
+				}
+			}
+			//servidor não existe no ad
+			else {
+				persisteAlunoNoLdap(alunoCursoRecuperado);
+			}
+
+		}
+
+
+		if (mainAd != null)
+			mainAd.closeConnection();
+
+		return success;
+	}
 
 	public boolean addLdapAlunosFromBase() throws NamingException {
 		boolean succes = true;
-		List<AlunoCurso> listaDeAlunosCurso = alunoCursoRepository.findAll();
-		HashMap<String, List<AlunoCurso>> hashAlunosCurso = retornaHashDeAlunosCurso(listaDeAlunosCurso);
+		//List<AlunoCurso> listaDeAlunosCurso = alunoCursoRepository.findAll();
+		//HashMap<String, List<AlunoCurso>> hashAlunosCurso = retornaHashDeAlunosCurso(listaDeAlunosCurso);
 		// lista todos os alunos do integrado
-		List<AlunoCurso> listaTodosAlunosIntegrado = hashAlunosCurso.get("integrado");
+		List<AlunoCurso> listaTodosAlunosIntegrado = alunoCursoRepository.findByTipoAluno("integrado");
 		// lista todos os alunos do superior
-		List<AlunoCurso> listaTodosAlunosSuperior = hashAlunosCurso.get("superior");
+		List<AlunoCurso> listaTodosAlunosSuperior = alunoCursoRepository.findByTipoAluno("superior");
 
-		// hashMapDeAlunosIntegradoFiltrados
-		HashMap<String, List<AlunoCurso>> hashAlunosIntegrado = retornaHashDeAlunosCursoFiltrados(listaTodosAlunosIntegrado,
-				"integrado");
+
+		HashMap<String, List<AlunoCurso>> hashAlunosIntegrado = retornaHashDeAlunosCursoFiltrados(listaTodosAlunosIntegrado,"integrado");
 		// hashMapDeAlunosSuperiorFiltrados
-		HashMap<String, List<AlunoCurso>> hashAlunosSuperior = retornaHashDeAlunosCursoFiltrados(listaTodosAlunosSuperior,
-				"superior");
+		HashMap<String, List<AlunoCurso>> hashAlunosSuperior = retornaHashDeAlunosCursoFiltrados(listaTodosAlunosSuperior, "superior");
+
 		try {
 			persisteAlunosLdapFromDatabase(hashAlunosIntegrado.get("naoCadastrados"), "integrado");
 			persisteAlunosLdapFromDatabase(hashAlunosSuperior.get("naoCadastrados"), "superior");
@@ -52,6 +83,7 @@ public class AddAlunosFromBase {
 			e.printStackTrace();
 			succes = false;
 		}
+
 		return succes;
 
 	}
@@ -92,7 +124,7 @@ public class AddAlunosFromBase {
 		MainAdCrud mainAd = new MainAdCrud(tipoDeAluno);
 		mainAd.newConnection();
 
-		HashMap<String, User> hashMapAlunosFromAd = mainAd.returnUserHashMap();
+		HashMap<String, User> hashMapAlunosFromAd = mainAd.returnUserHashMapUser();
 		for (AlunoCurso alunoCurso : listaTodosAlunos) {
 			// AlunoCurso ultimoCurso =
 			// aluno.getListaCursosAluno().get(aluno.getListaCursosAluno().size() - 1);
@@ -115,7 +147,7 @@ public class AddAlunosFromBase {
 			mainAd.newConnection();
 			// String[] nomeQuebradoNosEspacos = aluno.getNome_completo().split(" ");
 
-			// System.out.println("Senha do aluno: " + aluno.getSenha());
+			// //System.out.println("Senha do aluno: " + aluno.getSenha());
 
 			User user = convertAlunoCursoToUser(alunoCurso);
 			try {
@@ -128,11 +160,61 @@ public class AddAlunosFromBase {
 
 	}
 
+	private User persisteAlunoNoLdap(AlunoCurso alunoCurso) {
+		MainAdCrud mainAd = new MainAdCrud(alunoCurso.getAluno().getLogin());
+		mainAd.newConnection();
+
+
+		User user = convertAlunoCursoToUser(alunoCurso);
+		try {
+			mainAd.addUser(user);
+		} finally {
+			mainAd.closeConnection();
+		}
+
+		return  user;
+
+	}
+
+	private void atualizaAlunoNoLdap(MainAdCrud mainAd, AlunoCurso alunoCurso,  User usuarioAd) throws NamingException {
+
+		String[] vetorNomes = alunoCurso.getAluno().getNome_completo().split(" ");
+
+		if (!usuarioAd.getGivenName().equalsIgnoreCase(alunoCurso.getAluno().getNome_completo()))
+			atualizarAtributo(usuarioAd.getCn(), "givenName", alunoCurso.getAluno().getNome_completo(), mainAd);
+
+		if ((!usuarioAd.getSamaccountname().equalsIgnoreCase(alunoCurso.getMatricula())))
+			atualizarAtributo(usuarioAd.getCn(), "samAccountName", alunoCurso.getMatricula(), mainAd);
+
+		if (!usuarioAd.getMail().equalsIgnoreCase(alunoCurso.getAluno().getEmail()) &&
+				alunoCurso.getAluno().getEmail() != null)
+			atualizarAtributo(usuarioAd.getCn(), "mail", alunoCurso.getAluno().getEmail(), mainAd);
+		else if (alunoCurso.getAluno().getEmail() == null)
+			atualizarAtributo(usuarioAd.getCn(), "mail", "sememail@sememail.com", mainAd);
+
+		if (!usuarioAd.getSn().equalsIgnoreCase(alunoCurso.getAluno().getLogin())) {
+			atualizarAtributo(usuarioAd.getCn(), "sn", alunoCurso.getAluno().getLogin(), mainAd);
+		}
+		boolean isAtivo = false;
+		// verificar se o aluno está desabilitado
+
+		if (alunoCurso.getStatusDiscente().equalsIgnoreCase("ATIVO")
+				|| alunoCurso.getStatusDiscente().equalsIgnoreCase("FORMANDO"))
+			isAtivo = true;
+
+		if (!isAtivo) {
+			int USER_ACCOUNT_DISABLED = 0x00000001;
+			atualizarAtributo(usuarioAd.getCn(), "userAccountControl", Integer.toString(USER_ACCOUNT_DISABLED),
+					mainAd);
+			//System.out.println("aluno inativo: " + alunoCurso.getMatricula());
+		}
+	}
+
 	private void atualizaAlunosLdapFromDatabase(List<AlunoCurso> listaDeAlunosCurso, String tipoDeAluno)
 			throws NamingException {
 		MainAdCrud mainAdConnection = new MainAdCrud(tipoDeAluno);
 		mainAdConnection.newConnection();
-		HashMap<String, User> hashMapAlunosFromAd = mainAdConnection.returnUserHashMap();
+		HashMap<String, User> hashMapAlunosFromAd = mainAdConnection.returnUserHashMapUser();
 		mainAdConnection.closeConnection();
 
 		for (int i = 0; i < listaDeAlunosCurso.size(); i++) {
@@ -178,7 +260,7 @@ public class AddAlunosFromBase {
 				int USER_ACCOUNT_DISABLED = 0x00000001;
 				atualizarAtributo(usuarioAd.getCn(), "userAccountControl", Integer.toString(USER_ACCOUNT_DISABLED),
 						mainAd);
-				System.out.println("aluno inativo: " + alunoCursoFromDataBase.getMatricula());
+				//System.out.println("aluno inativo: " + alunoCursoFromDataBase.getMatricula());
 			}
 
 			mainAd.closeConnection();
@@ -187,7 +269,7 @@ public class AddAlunosFromBase {
 	}
 
 	private User convertAlunoCursoToUser(AlunoCurso alunoCurso) {
-		Aluno aluno = alunoRepository.getOne(alunoCurso.getAluno().getLogin());
+		Aluno aluno = alunoCurso.getAluno();
 
 		User user = new User();
 

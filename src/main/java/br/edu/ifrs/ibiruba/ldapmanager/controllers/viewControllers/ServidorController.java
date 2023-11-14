@@ -102,10 +102,11 @@ public class ServidorController {
 	        
 	    	if (resultado.hasErrors()) {
 	        	 attrs.addFlashAttribute("alert", new AlertDTO(resultado.getFieldError().toString(), "alert-warning"));
-	            return "servidor/formulario";
+
+				 return "servidor/formulario";
 	        }
 	        
-	        System.out.println("cpf digitado para o servidor: "+servidor.getLogin());
+	        //System.out.println("cpf digitado para o servidor: "+servidor.getLogin());
 	        servidor.setSenha(CriptografiaUtil.encriptar(servidor.getLogin()+"@ibiruba.ifrs"));
 
 	        servidorCrudService.save(servidor);

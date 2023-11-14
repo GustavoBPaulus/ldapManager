@@ -7,6 +7,8 @@ import java.util.Optional;
 import javax.naming.NameAlreadyBoundException;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.validation.Valid;
+
+import br.edu.ifrs.ibiruba.ldapmanager.useful.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,64 +41,66 @@ public class ServidorCrudService {
 	@Autowired
 	ChangePasswordService changePasswordService;
 
+	@Autowired
+	ServidorAuthenticatorService servidorAuthenticatorService;
+
 	public List<Servidor> findAll() {
 
 		return servidorRepository.findAll();
 	}
 
-	
 
 	public List<Servidor> findByCnStatusAndTipoServidor(String cn, String status, String tipoDeServidor) {
-		System.out.println("cn: " + cn + " status: " + status);
-	status =	status.toUpperCase();
+		//System.out.println("cn: " + cn + " status: " + status);
+		status = status.toUpperCase();
 		//todos 
-		if (cn.equals("") && status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos") ) {
-			System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
+		if (cn.equals("") && status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")) {
+			//System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
 
 			return findAll();
 
-		} 
+		}
 		//apenas pelo cn
 		else if (!cn.equals("") && status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo cn ,cn: " + cn + " status: " + status);
+			//System.out.println("caiu no if apenas pelo cn ,cn: " + cn + " status: " + status);
 
 			return servidorRepository.findBycnContaining(cn.trim().toLowerCase());
 
 		} //apenas o status
-		else if(cn.equals("") && !status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")){
-			System.out.println("caiu no if apenas pelo status ,cn: " + cn + " status: " + status);
+		else if (cn.equals("") && !status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")) {
+			//System.out.println("caiu no if apenas pelo status ,cn: " + cn + " status: " + status);
 			return servidorRepository.findBytatusIsEqual(status);
 
 		}
 		//apenas pelo tipo de servidor
-		else if(cn.equals("") && status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")){
-			System.out.println("caiu no if apenas pelo tipo ,cn: " + cn + " status: " + status);
+		else if (cn.equals("") && status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")) {
+			//System.out.println("caiu no if apenas pelo tipo ,cn: " + cn + " status: " + status);
 			return servidorRepository.findByTipoServidor(tipoDeServidor.toLowerCase().trim());
 
 		}
-		
+
 		//apenas cn e status
-		else if(!cn.equals("") && !status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")){
-			System.out.println("caiu no if apenas pelo cn e status ,cn: " + cn + " status: " + status);
+		else if (!cn.equals("") && !status.equalsIgnoreCase("todos") && tipoDeServidor.equalsIgnoreCase("todos")) {
+			//System.out.println("caiu no if apenas pelo cn e status ,cn: " + cn + " status: " + status);
 			return servidorRepository.findBycnContainingAndStatusIsEqual(cn.trim().toLowerCase(),
 					status.toUpperCase().trim());
 
 		}
 		//apenas cn e tipo
-		else if(!cn.equals("") && status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")) {
-			
-			System.out.println("if do cn e tipo, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
+		else if (!cn.equals("") && status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")) {
+
+			//System.out.println("if do cn e tipo, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
 			return servidorRepository.findBycnContainingAndTipo(cn, tipoDeServidor);
-	
+
 		}
 		//apenas tipo e status
-		else if(cn.equals("") && !status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")) {
-			System.out.println("if tipo e status, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
+		else if (cn.equals("") && !status.equalsIgnoreCase("todos") && !tipoDeServidor.equalsIgnoreCase("todos")) {
+			//System.out.println("if tipo e status, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
 			return servidorRepository.findByStatusAndTipo(status.toUpperCase(), tipoDeServidor);
 		}
 		//tipo, status e cn
 		else {
-			System.out.println("if cn, tipo e status preenchidos, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
+			//System.out.println("if cn, tipo e status preenchidos, cn = " +cn + "status = "+status + "tipoDeServidor = "+tipoDeServidor);
 			return servidorRepository.findBycnContainingAndStatusAndTipoAreEqual(cn, status, tipoDeServidor);
 		}
 	}
@@ -106,10 +110,10 @@ public class ServidorCrudService {
 	}
 	/*
 	 * public Servidor update(Servidor servidor) {
-	 * 
-	 * 
+	 *
+	 *
 	 * // servidor.setSenha(CriptografiaUtil.encriptar(servidor.getSenha()));
-	 * 
+	 *
 	 * return servidorRepository.save(servidor); }
 	 */
 
@@ -132,6 +136,9 @@ public class ServidorCrudService {
 			servidorCargo.setCargo(servidor.getTipoServidor());
 			// quando cadastra o status vai ser ativo
 			servidorCargo.setStatus("ATIVO");
+			//seta no servidor também
+			servidor.setStatus("ATIVO");
+
 			// login
 			servidorCargo.setServidor(servidor);
 
@@ -142,10 +149,11 @@ public class ServidorCrudService {
 			servidorRepository.save(servidor);
 		}
 
-			adicionaStatusDosCargosNaTabelaServidor();
-
+		adicionaStatusDosCargosNaTabelaServidor();
+		servidoresFromBaseService.addOrUpdateServidor(servidor.getLogin());
+/*
 		try {
-			servidoresFromBaseService.addServidorsFromBase();
+			servidoresFromBaseService.sincronizarServidoresFromBase();
 		} catch (InvalidAttributeValueException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,7 +161,9 @@ public class ServidorCrudService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		//salvar servidor na tabela de autenticação
+		servidorAuthenticatorService.save(servidor);
+*/
 		// emailDeNovoUsuário(servidor);
 		return servidor;
 	}
@@ -162,11 +172,11 @@ public class ServidorCrudService {
 		servidor.setCn(servidor.getCn().toLowerCase());
 		servidor.setCn(servidor.getCn().trim());
 		servidor.setCn(semAcento(servidor.getCn()));
-		
+
 		servidor.setEmail(semAcento(servidor.getEmail().toLowerCase()));
-		
+
 		servidor.setNome_completo(semAcento(servidor.getNome_completo()));
-		
+
 		servidor.setLogin(apenasNumeros(servidor.getLogin()));
 	}
 
@@ -178,7 +188,8 @@ public class ServidorCrudService {
 		message.setSubject("Novo usuário ifrs - campus ibirubá");
 		message.setText("Seja bem vindo ao ifrs - campus ibirubá, seu usuário é: " + servidor.getCn()
 				+ " sua senha temporária é: " + CriptografiaUtil.desencriptar(servidor.getSenha())
-				+ " esse usuário e senha devem ser utilizado para acessar a rede wifi servidores");
+				+ " esse usuário e senha devem ser utilizado para acessar a rede wifi servidores"+
+				"sistemas: chamados, reservas, printer");
 
 		boolean sended = new SendMail().sendMailLogic(message);
 	}
@@ -191,16 +202,18 @@ public class ServidorCrudService {
 	public void delete(Servidor servidor) {
 		//if (servidorCargoRepository.findById(servidor.getCn()).isEmpty()) {
 		//se for excluir o servidor vai excluir os cargos também
-			servidor.getListaCargos().forEach(c ->{
-				servidorCargoRepository.delete(c);
-			});
-			servidorRepository.delete(servidor);
-				//varre todos os servidores que tem no ldap e não tem na base
-				servidoresFromBaseService.exluirUsuariosQueExistemNaBaseEnaoExistemNoLdap();
+		servidor.getListaCargos().forEach(c -> {
+			servidorCargoRepository.delete(c);
+		});
+		servidorRepository.delete(servidor);
+		//varre todos os servidores que tem no ldap e não tem na base
+		servidoresFromBaseService.exluirUsuariosQueExistemNaBaseEnaoExistemNoLdap();
 
 	/*	} else
 			throw new ServidorPossuiCargoException(servidor.getCn());
 	*/
+		//deleta da tabela de autenticação de servidores
+		servidorAuthenticatorService.delete(servidor);
 
 	}
 
@@ -216,92 +229,107 @@ public class ServidorCrudService {
 			});
 
 			adicionaStatusDosCargosNaTabelaServidor();
-			try {
-				servidoresFromBaseService.addServidorsFromBase();
-			} catch (InvalidAttributeValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NameAlreadyBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			//altera a senha para evitar que o usuário faça login no chamados e no reservas
+			String senhaTemporaria = PasswordUtil.retornaSenhaTemporaria();
+			servidor.setSenha(CriptografiaUtil.encriptar(senhaTemporaria));
+			servidorRepository.save(servidor);
+
+			//servidoresFromBaseService.sincronizarServidoresFromBase();
+			servidoresFromBaseService.addOrUpdateServidor(servidor.getLogin());
+
+
+			//throw new ServidorPossuiCargoException(servidor.getCn());
+
+			//atualiza o status na tabela de servidor
+			servidorAuthenticatorService.save(servidor);
+		}
+	}
+
+		public void ativar (Servidor servidor){
+			List<ServidorCargo> listaDeservidorCargo = servidorCargoRepository.findByServidor(servidor);
+
+			if (listaDeservidorCargo != null || !listaDeservidorCargo.isEmpty()) {
+
+				listaDeservidorCargo.forEach(sc -> {
+					sc.setStatus("ATIVO");
+					servidorCargoRepository.save(sc);
+				});
+
+				adicionaStatusDosCargosNaTabelaServidor();
+				resetarSenhaServidor(servidor);
+				servidorRepository.save(servidor);
+				servidoresFromBaseService.addOrUpdateServidor(servidor.getLogin());
+				/*
+				try {
+					servidoresFromBaseService.sincronizarServidoresFromBase();
+				} catch (InvalidAttributeValueException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NameAlreadyBoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else
+				throw new ServidorPossuiCargoException(servidor.getCn());
+				*/
+
+
+				//atualiza o status na tabela de serviço
+				servidorAuthenticatorService.save(servidor);
 			}
-		} else
-			throw new ServidorPossuiCargoException(servidor.getCn());
-	}
-
-	public void ativar(Servidor servidor) {
-		List<ServidorCargo> listaDeservidorCargo = servidorCargoRepository.findByServidor(servidor);
-
-		if (listaDeservidorCargo != null || !listaDeservidorCargo.isEmpty()) {
-
-			listaDeservidorCargo.forEach(sc -> {
-				sc.setStatus("ATIVO");
-				servidorCargoRepository.save(sc);
-			});
-
-			adicionaStatusDosCargosNaTabelaServidor();
-			try {
-				servidoresFromBaseService.addServidorsFromBase();
-			} catch (InvalidAttributeValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NameAlreadyBoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else
-			throw new ServidorPossuiCargoException(servidor.getCn());
-	}
-
-	public boolean resetarSenhaServidor(Servidor servidor) {
-
-		String senhaReset = servidor.getLogin() + "@ibiruba.ifrs".trim();
-		AlterPasswordModel alterPasswordModel = new AlterPasswordModel();
-		alterPasswordModel.setActualPassword(CriptografiaUtil.desencriptar(servidor.getSenha()));
-		alterPasswordModel.setNewPassword(senhaReset);
-		alterPasswordModel.setTypeOfUser("servidor");
-		alterPasswordModel.setUser(servidor.getCn());
-
-		return changePasswordService.alterPassword(alterPasswordModel);
-
-	}
-
-	public void setaStatusServidorComBaseEmCargos(Servidor servidor) {
-		List<ServidorCargo> cargosServidorAtual = servidorCargoRepository.findByServidor(servidor);
-		cargosServidorAtual.forEach(c -> {
-			if (c.getStatus().equalsIgnoreCase("ATIVO"))
-				servidor.setStatus("ATIVO");
-			else
-				servidor.setStatus("INATIVO");
-		});
-
-	}
-
-	public void adicionaStatusDosCargosNaTabelaServidor() {
-
-		List<Servidor> listaDeServidores = findAll();
-
-		listaDeServidores.forEach(s -> {
-			setaStatusServidorComBaseEmCargos(s);
-			servidorRepository.save(s);
-		});
-	}
-
-	public static String semAcento(String str) {
-		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
-		Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-		return pattern.matcher(nfdNormalizedString).replaceAll("");
-	}
-
-	public static String apenasNumeros(String login){
-		char numero[] = login.toCharArray();
-		StringBuilder loginLimpo = new StringBuilder();
-		for(char digito : numero){
-			if(Character.isDigit(digito))
-				loginLimpo.append(digito);
 		}
 
-	return loginLimpo.toString();
+		public boolean resetarSenhaServidor (Servidor servidor){
+
+			String senhaReset = servidor.getLogin() + "@ibiruba.ifrs".trim();
+			AlterPasswordModel alterPasswordModel = new AlterPasswordModel();
+			alterPasswordModel.setActualPassword(CriptografiaUtil.desencriptar(servidor.getSenha()));
+			alterPasswordModel.setNewPassword(senhaReset);
+			alterPasswordModel.setTypeOfUser("servidor");
+			alterPasswordModel.setUser(servidor.getCn());
+
+
+			return changePasswordService.alterPassword(alterPasswordModel);
+
+		}
+
+		public void setaStatusServidorComBaseEmCargos (Servidor servidor){
+			List<ServidorCargo> cargosServidorAtual = servidorCargoRepository.findByServidor(servidor);
+			cargosServidorAtual.forEach(c -> {
+				if (c.getStatus().equalsIgnoreCase("ATIVO"))
+					servidor.setStatus("ATIVO");
+				else
+					servidor.setStatus("INATIVO");
+			});
+
+		}
+
+		public void  adicionaStatusDosCargosNaTabelaServidor() {
+
+			List<Servidor> listaDeServidores = findAll();
+
+			listaDeServidores.forEach(s -> {
+				setaStatusServidorComBaseEmCargos(s);
+				servidorRepository.save(s);
+			});
+		}
+
+		public static String semAcento (String str){
+			String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+			Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+			return pattern.matcher(nfdNormalizedString).replaceAll("");
+		}
+
+		public static String apenasNumeros (String login){
+			char numero[] = login.toCharArray();
+			StringBuilder loginLimpo = new StringBuilder();
+			for (char digito : numero) {
+				if (Character.isDigit(digito))
+					loginLimpo.append(digito);
+			}
+
+			return loginLimpo.toString();
+		}
+
 	}
 
-}

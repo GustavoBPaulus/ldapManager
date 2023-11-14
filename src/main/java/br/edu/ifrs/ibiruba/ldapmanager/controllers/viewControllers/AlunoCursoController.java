@@ -112,11 +112,11 @@ public class AlunoCursoController {
 
 		if (resultado.hasErrors()) {
 			attrs.addFlashAttribute("alert", new AlertDTO(resultado.getFieldError().toString(), "alert-warning"));
-			model.addAttribute("cursos", alunoCursoService.retornaCursos());
+			attrs.addAttribute("cursos", alunoCursoService.retornaCursos());
 			return "aluno_curso/formulario";
 		}
 
-		System.out.println("matricula digitado para o Aluno: " + alunoCurso.getMatricula());
+		//System.out.println("matricula digitado para o Aluno: " + alunoCurso.getMatricula());
 		alunoCurso.getAluno().setSenha(CriptografiaUtil.encriptar(alunoCurso.getAluno().getLogin() + "@ibiruba.ifrs"));
 		alunoCursoService.insert(alunoCurso);
 		// attrs.addFlashAttribute("alert", new AlertDTO("Aluno cadastrado com
@@ -134,7 +134,7 @@ public class AlunoCursoController {
 
 		if (resultado.hasErrors()) {
 			attrs.addFlashAttribute("alert", new AlertDTO(resultado.getFieldError().toString(), "alert-warning"));
-			model.addAttribute("cursos", alunoCursoService.retornaCursos());
+			attrs.addAttribute("cursos", alunoCursoService.retornaCursos());
 			return "redirect:/matriculas/{matricula}/editar";
 		}
 

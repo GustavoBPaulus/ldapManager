@@ -53,39 +53,39 @@ public class AlunoCursoService {
 	}
 
 	public List<AlunoCurso> findByNomeStatusAndCurso(String nome, String status, String curso) {
-		System.out.println("cn: " + nome + " status: " + status + " curso: "+curso);
+		//System.out.println("cn: " + nome + " status: " + status + " curso: "+curso);
 		status = status.toUpperCase();
 		nome = nome.toUpperCase();
 		// todos
 		if (nome.equals("") && status.equalsIgnoreCase("todos") && curso.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
+			//System.out.println("caiu no if de todos ,findAll: cn vazio e status = todos ");
 
 			return findAll();
 
 		}
 		// apenas por nome
 		else if (!nome.equals("") && status.equalsIgnoreCase("todos") && curso.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo cn ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo cn ,cn: " + nome + " status: " + status);
 
 			return alunoCursoRepository.findByAlunoNomeCompletoContaining(nome.trim().toUpperCase());
 
 		}
 		// apenas o status
 		else if (nome.equals("") && !status.equalsIgnoreCase("todos") && curso.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo status ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo status ,cn: " + nome + " status: " + status);
 			return alunoCursoRepository.findByStatusDiscente(status);
 
 		}
 		// apenas pelo curso de Aluno
 		else if (nome.equals("") && status.equalsIgnoreCase("todos") && !curso.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo nome do curso: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo nome do curso: " + nome + " status: " + status);
 			return alunoCursoRepository.findBynomeCurso(curso.toUpperCase().trim());
 
 		}
 
 		// apenas nomeCompleto e status
 		else if (!nome.equals("") && !status.equalsIgnoreCase("todos") && curso.equalsIgnoreCase("todos")) {
-			System.out.println("caiu no if apenas pelo cn e status ,cn: " + nome + " status: " + status);
+			//System.out.println("caiu no if apenas pelo cn e status ,cn: " + nome + " status: " + status);
 			return alunoCursoRepository.findByAlunoNomeCompletoContainingAndStatusDiscenteEquals(nome.trim().toLowerCase(),
 					status.toUpperCase().trim());
 
@@ -93,20 +93,18 @@ public class AlunoCursoService {
 		// apenas nomeCompleto e curso
 		else if (!nome.equals("") && status.equalsIgnoreCase("todos") && !curso.equalsIgnoreCase("todos")) {
 
-			System.out.println("if do cn e tipo, cn = " + nome + "status = " + status + "curso = " + curso);
+			//System.out.println("if do cn e tipo, cn = " + nome + "status = " + status + "curso = " + curso);
 			return alunoCursoRepository.findByAlunoNomeCompletoContainingAndNomeCursoEquals(nome, curso);
 
 		}
 		// apenas tipo e status
 		else if (nome.equals("") && !status.equalsIgnoreCase("todos") && !curso.equalsIgnoreCase("todos")) {
-			System.out
-					.println("if tipo e status, cn = " + nome + "status = " + status + "tipoDeAluno = " + curso);
+			//System.out.println("if tipo e status, cn = " + nome + "status = " + status + "tipoDeAluno = " + curso);
 			return alunoCursoRepository.findByStatusDiscenteEqualsAndNomeCursoEquals(status.toUpperCase(), curso);
 		}
 		// tipo, status e cn
 		else {
-			System.out.println("if cn, tipo e status preenchidos, cn = " + nome + "status = " + status
-					+ "curso = " + curso);
+			//System.out.println("if cn, tipo e status preenchidos, cn = " + nome + "status = " + status+ "curso = " + curso);
 			return alunoCursoRepository.findByAlunoNomeCompletoContainingAndStatusDiscenteEqualsAndNomeCursoEquals(
 					nome, status, curso);
 		}

@@ -43,5 +43,9 @@ public interface AlunoCursoRepository extends JpaRepository<AlunoCurso, String>{
 	List<AlunoCurso> findByAlunoNomeCompletoContainingAndStatusDiscenteEquals(String lowerCase, String trim);
 
 
-	List<AlunoCurso> findBynomeCurso(String trim);
+	List<AlunoCurso> findBynomeCurso(String tipoCurso);
+	@Query(value = "SELECT * FROM aluno_curso ac\n" +
+			"LEFT JOIN aluno al ON ac.aluno =  al.login\n" +
+			"WHERE tipo_aluno = :tipoAluno", nativeQuery = true)
+	List<AlunoCurso> findByTipoAluno(String tipoAluno);
 }

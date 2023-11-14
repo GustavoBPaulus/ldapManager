@@ -43,10 +43,10 @@ public class AlterPasswordViewController {
 		
 		redirectAttrs.addFlashAttribute("passwordChangedAndSended", passwordChangedAndSended);
 		
-		System.out.println("recebeu a requisição");
+		//System.out.println("recebeu a requisição");
 		
 		try {
-			servidoresFromBaseService.addServidorsFromBase();
+			servidoresFromBaseService.sincronizarServidoresFromBase();
 		} catch (InvalidAttributeValueException | NameAlreadyBoundException e) {
 			logger.error("erro ao resetar a senha, método forgetPassword: "+ e.getStackTrace());
 			e.printStackTrace();
@@ -60,13 +60,13 @@ public class AlterPasswordViewController {
 	public String changePassword(AlterPasswordModel alterPasswordModel, RedirectAttributes redirectAttrs) {
 		boolean passwordChanged = false;
 		
-		System.out.println("TIPO DE USUÁRIO: "+alterPasswordModel.getTypeOfUser());
-		System.out.println("objeto alterPasswordModel: "+alterPasswordModel.getTypeOfUser());
+		//System.out.println("TIPO DE USUÁRIO: "+alterPasswordModel.getTypeOfUser());
+		//System.out.println("objeto alterPasswordModel: "+alterPasswordModel.getTypeOfUser());
 		passwordChanged = changePasswordService.alterPassword(alterPasswordModel);
 		
 		redirectAttrs.addFlashAttribute("passwordChanged", passwordChanged);
 		try {
-			servidoresFromBaseService.addServidorsFromBase();
+			servidoresFromBaseService.sincronizarServidoresFromBase();
 		} catch (InvalidAttributeValueException | NameAlreadyBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

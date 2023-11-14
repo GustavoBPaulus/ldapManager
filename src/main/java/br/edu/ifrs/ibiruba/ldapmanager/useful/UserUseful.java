@@ -47,7 +47,7 @@ public class UserUseful {
 				specifiedTypeOfUser = "integrado";
 			}
 		}
-		System.out.println("tipo de usuário: " + specifiedTypeOfUser);
+		//System.out.println("tipo de usuário: " + specifiedTypeOfUser);
 
 		return specifiedTypeOfUser;
 	}

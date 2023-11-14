@@ -34,9 +34,9 @@ public class ServidorValidator implements Validator {
 			boolean foundIsEqualActual = (servidor.getCn().equalsIgnoreCase(servidorFoundObject.getCn())
 					&& (servidor.getLogin().equalsIgnoreCase(servidorFoundObject.getLogin())) ? true : false);
 			if (!foundIsEqualActual) {
-				System.out.println("servidorFound é diferente de Servidor: " + !servidorFound.get().equals(servidor));
-				System.out.println("to String servidor found: " + servidorFound.toString());
-				System.out.println("to String servidor: " + servidorFound.toString());
+				//System.out.println("servidorFound é diferente de Servidor: " + !servidorFound.get().equals(servidor));
+				//System.out.println("to String servidor found: " + servidorFound.toString());
+				//System.out.println("to String servidor: " + servidorFound.toString());
 				errors.rejectValue("login", "validacao.servidor.login.existente");
 			}
 			if (servidor.getLogin() == null || servidor.getLogin().equals("")) {
@@ -52,8 +52,8 @@ public class ServidorValidator implements Validator {
 			servidorFoundObject = servidorFound.get();
 			boolean foundIsEqualActual = (servidor.getCn().equalsIgnoreCase(servidorFoundObject.getCn())
 					&& (servidor.getLogin().equalsIgnoreCase(servidorFoundObject.getLogin())) ? true : false);
-			System.out.println("servidor: " + servidor);
-			System.out.println("servidor found: " + servidorFound.toString());
+			//System.out.println("servidor: " + servidor);
+			//System.out.println("servidor found: " + servidorFound.toString());
 			if (!foundIsEqualActual) {
 				errors.rejectValue("cn", "validacao.servidor.cn.existente");
 			}

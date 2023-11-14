@@ -24,16 +24,19 @@ public class ChangePasswordService {
 	@Autowired
 	AlunoCursoRepository alunoCursoRepository;
 
+	@Autowired
+	ServidorAuthenticatorService servidorAuthenticatorService;
+
 	public boolean alterPassword(AlterPasswordModel alterPasswordModel) {
 		String tipoDeAlunoOuTipoDeServidor = new UserUseful().returnSpecifiedTypeOfUser(alterPasswordModel,
 				servidorRepository, alunoCursoRepository);
 		boolean userWasAutenticated = false;
 		if (alterPasswordModel.getTypeOfUser().equalsIgnoreCase("servidor")) {
 			Servidor servidor = servidorRepository.findBycn(alterPasswordModel.getUser().trim()).get();
-			System.out.println("senha atual encriptada: " + servidor.getSenha());
+			//System.out.println("senha atual encriptada: " + servidor.getSenha());
 			String senhaAtualDesencriptada = CriptografiaUtil.desencriptar(servidor.getSenha());
 			String senhaTemporariaDesencriptada = null;
-			System.out.println("senha desincriptada: " + senhaAtualDesencriptada);
+			//System.out.println("senha desincriptada: " + senhaAtualDesencriptada);
 
 			if (servidor.isTemporariaAtiva() && servidor.getSenhaTemporaria() != null) {
 				senhaTemporariaDesencriptada = CriptografiaUtil.desencriptar(servidor.getSenhaTemporaria());
@@ -72,6 +75,9 @@ public class ChangePasswordService {
 				Servidor servidor = servidorRepository.findBycn(alterPasswordModel.getUser().trim()).get();
 				servidor.setSenha(CriptografiaUtil.encriptar(alterPasswordModel.getNewPassword()));
 				servidorRepository.save(servidor);
+				//atualiza o status na tabela de serviço
+				servidorAuthenticatorService.save(servidor);
+
 				passwordChangedBase = true;
 				//se foi alterada corretamente passa senha temporaria ativa para false
 				if(passwordChangedBase)
